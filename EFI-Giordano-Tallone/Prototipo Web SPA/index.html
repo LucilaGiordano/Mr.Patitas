@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mr. Patitas | Red Comunitaria de Mascotas - Río Cuarto</title>
+  
+  <!-- Isotipo Oficial y Metadatos -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <meta name="theme-color" content="#FF6B35">
+  <meta name="description" content="Plataforma Comunitaria Web SPA para reporte de mascotas perdidas, adopciones responsables y marketplace local en Río Cuarto.">
+
+  <!-- Tipografías Oficiales: Poppins (Títulos) & Inter (Cuerpo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN v3 con Configuración de Marca -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#FFF4EE',
+              100: '#FFE4D6',
+              200: '#FFC4A8',
+              300: '#FFA37A',
+              400: '#FF8757',
+              500: '#FF6B35', // Naranja vibrante oficial
+              600: '#E05320',
+              700: '#BA3E13',
+              800: '#942E0C',
+              900: '#6E1F07',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            heading: ['Poppins', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome 6 Iconos Vectoriales -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Leaflet.js para Mapa Libre (OpenStreetMap) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Hoja de Estilos del Sistema de Diseño -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-full flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- ======================================================== -->
+  <!-- VISTA 0: PANTALLA DE BIENVENIDA / SPLASH LANDING         -->
+  <!-- ======================================================== -->
+  <div id="view-welcome" class="spa-view active fixed inset-0 z-50 bg-gradient-to-br from-brand-50 via-white to-amber-50/40 flex flex-col justify-between p-6 overflow-y-auto">
+    
+    <div class="flex items-center justify-between max-w-6xl mx-auto w-full pt-4">
+      <span class="text-xs font-mono font-semibold text-slate-500 bg-white/95 backdrop-blur px-3.5 py-1 rounded-full border border-slate-200 shadow-xs flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Río Cuarto · Red Activa
+      </span>
+      <span class="text-xs text-brand-600 font-heading font-bold">EFI Giordano & Tallone 2026</span>
+    </div>
+
+    <!-- Contenido Central del Welcome -->
+    <div class="max-w-3xl mx-auto w-full text-center my-auto py-10">
+      
+      <!-- Isotipo Oficial con Paw Badge -->
+      <div class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-6">
+        <div class="w-full h-full rounded-3xl bg-white shadow-2xl shadow-brand-500/20 p-4 flex items-center justify-center border-4 border-brand-500/20 transform hover:scale-105 transition-transform duration-300">
+          <img src="assets/logo.png" alt="Isotipo Mr. Patitas" class="w-full h-full object-contain">
+        </div>
+        <div class="absolute -bottom-2 -right-2 bg-brand-500 text-white rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shadow-lg text-base">
+          🐾
+        </div>
+      </div>
+
+      <h1 class="font-heading font-extrabold text-3xl sm:text-5xl text-slate-900 tracking-tight leading-tight">
+        Mr. Patitas
+      </h1>
+      <p class="font-heading font-semibold text-brand-600 text-base sm:text-xl mt-1.5">
+        Mascota Local · Red Comunitaria
+      </p>
+
+      <p class="text-sm sm:text-base text-slate-600 mt-4 leading-relaxed max-w-lg mx-auto">
+        Conectamos a la comunidad de Río Cuarto para que las mascotas perdidas vuelvan rápidamente a sus hogares, promoviendo la adopción responsable y el comercio de proximidad.
+      </p>
+
+      <!-- 3 Pilares Resumidos -->
+      <div class="grid grid-cols-3 gap-3 sm:gap-4 mt-8 max-w-lg mx-auto text-center">
+        <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-200/80 shadow-xs">
+          <span class="text-2xl">🚨</span>
+          <span class="text-xs font-heading font-bold text-slate-800 block mt-1">Alertas en Mapa</span>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-200/80 shadow-xs">
+          <span class="text-2xl">💛</span>
+          <span class="text-xs font-heading font-bold text-slate-800 block mt-1">Adopciones</span>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-200/80 shadow-xs">
+          <span class="text-2xl">🛍️</span>
+          <span class="text-xs font-heading font-bold text-slate-800 block mt-1">Marketplace</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de Entrada Principal -->
+    <div class="max-w-md mx-auto w-full space-y-3 pb-6">
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="openAuthModal('login')" class="py-3.5 px-4 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-sm rounded-2xl shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
+        </button>
+        <button onclick="openAuthModal('register')" class="py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-800 font-heading font-bold text-sm rounded-2xl border border-slate-200 shadow-xs transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-user-plus"></i> Registrarse
+        </button>
+      </div>
+
+      <button onclick="navigateTo('home')" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-heading font-semibold text-sm rounded-2xl shadow-md transition flex items-center justify-center gap-2">
+        <span>Continuar como Invitado</span>
+        <i class="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+      </button>
+
+      <p class="text-center text-[11px] text-slate-500 pt-1">
+        Navegación libre por catálogo, detalles, mapa y marketplace.
+      </p>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- BARRA DE NAVEGACIÓN SUPERIOR (DESKTOP & MOBILE HEADER)    -->
+  <!-- ======================================================== -->
+  <header id="appTopBar" class="hidden sticky top-0 z-40 w-full bg-white/95 backdrop-blur border-b border-slate-200/80 shadow-xs">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      
+      <!-- Logotipo + Nombre de Marca Oficial -->
+      <div onclick="navigateTo('home')" class="flex items-center gap-3 cursor-pointer group shrink-0">
+        <div class="w-10 h-10 rounded-2xl bg-brand-50 border border-brand-200 p-1.5 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+          <img src="assets/logo.png" alt="Mr. Patitas" class="w-full h-full object-contain">
+        </div>
+        <div>
+          <span class="font-heading font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight leading-none block">
+            Mr. Patitas
+          </span>
+          <span class="text-[10px] text-brand-600 font-heading font-semibold uppercase tracking-wider block mt-0.5">
+            Río Cuarto · Mascotas
+          </span>
+        </div>
+      </div>
+
+      <!-- Menú de Navegación de Escritorio -->
+      <nav id="desktopNavLinks" class="hidden md:flex items-center gap-1 lg:gap-2">
+        <button onclick="navigateTo('home')" id="dnav-home" class="px-3.5 py-2 rounded-xl text-xs font-heading font-semibold text-brand-600 bg-brand-50 transition">
+          Inicio
+        </button>
+        <button onclick="navigateTo('map')" id="dnav-map" class="px-3.5 py-2 rounded-xl text-xs font-heading font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          Mapa Comunitario
+        </button>
+        <button onclick="navigateTo('adoptions')" id="dnav-adoptions" class="px-3.5 py-2 rounded-xl text-xs font-heading font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          Adopciones
+        </button>
+        <button onclick="navigateTo('marketplace')" id="dnav-marketplace" class="px-3.5 py-2 rounded-xl text-xs font-heading font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          Marketplace
+        </button>
+        <button onclick="navigateTo('favorites')" id="dnav-favorites" class="px-3.5 py-2 rounded-xl text-xs font-heading font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          Guardados
+        </button>
+      </nav>
+
+      <!-- Controles Superiores: Selector Zona + Notificaciones + Carrito + Usuario -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        
+        <!-- Selector de Zonas de Río Cuarto -->
+        <div class="relative">
+          <select id="zoneSelectDropdown" onchange="handleZoneChange(this.value)" class="appearance-none pl-7 pr-8 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer transition">
+            <option value="Todas">📍 Todas las zonas</option>
+            <option value="Centro" selected>📍 Centro</option>
+            <option value="Banda Norte">📍 Banda Norte</option>
+            <option value="Alberdi">📍 Alberdi</option>
+            <option value="Macrocentro">📍 Macrocentro</option>
+            <option value="Sur">📍 Sur / Bimaco</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-[10px] text-slate-400 pointer-events-none"></i>
+        </div>
+
+        <!-- Botón Notificaciones -->
+        <button onclick="openNotificationsModal()" class="relative w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition" title="Alertas barriales">
+          <i class="fa-regular fa-bell text-sm"></i>
+          <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-brand-500 ring-2 ring-white"></span>
+        </button>
+
+        <!-- Botón Carrito -->
+        <button onclick="openCartModal()" class="relative w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition" title="Ver carrito">
+          <i class="fa-solid fa-cart-shopping text-sm"></i>
+          <span id="cartCountBadge" class="hidden absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
+            0
+          </span>
+        </button>
+
+        <!-- Botón Publicar (Desktop) -->
+        <button onclick="handleGeneralPublish('lost')" class="hidden lg:flex items-center gap-1.5 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-full shadow-xs transition">
+          <i class="fa-solid fa-plus"></i> Publicar
+        </button>
+
+        <!-- Píldora de Perfil / Login -->
+        <div id="headerUserPill"></div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- CONTENEDOR PRINCIPAL RESPONSIVE (MAX-W-7XL ANCHO)        -->
+  <!-- ======================================================== -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-28 md:pb-16">
+
+    <!-- ====================================================== -->
+    <!-- VISTA 1: INICIO / DASHBOARD PRINCIPAL                  -->
+    <!-- ====================================================== -->
+    <section id="view-home" class="spa-view space-y-8">
+
+      <!-- Hero Banner Principal -->
+      <div class="bg-gradient-to-r from-orange-50 via-white to-amber-50 rounded-3xl p-6 sm:p-10 border border-orange-100 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="max-w-2xl">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-heading font-bold bg-brand-50 text-brand-600 border border-brand-200 mb-3">
+            <i class="fa-solid fa-location-dot"></i> Red Comunitaria de Río Cuarto
+          </span>
+          <h2 class="font-heading font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight leading-tight">
+            Ayudemos a que vuelvan a casa.
+          </h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            Reportá extravíos en tu barrio, localizá avistamientos en el mapa interactivo o encontrá a tu próximo compañero en adopción responsable.
+          </p>
+        </div>
+
+        <div class="shrink-0 flex flex-col sm:flex-row gap-3">
+          <button onclick="handleGeneralPublish('lost')" class="px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-sm rounded-2xl shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus"></i> Publicar Mascota
+          </button>
+          <button onclick="navigateTo('map')" class="px-5 py-3.5 bg-white hover:bg-slate-50 text-slate-700 font-heading font-semibold text-sm rounded-2xl border border-slate-200 shadow-xs transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-map-location-dot text-brand-500"></i> Ver en Mapa
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Búsqueda y Filtros de Categoría -->
+      <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+          
+          <!-- Input de Búsqueda -->
+          <div class="relative flex-1">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+              <i class="fa-solid fa-magnifying-glass text-sm"></i>
+            </div>
+            <input 
+              type="text" 
+              id="homeSearchInput"
+              placeholder="Buscar por nombre, raza, barrio o descripción..." 
+              class="w-full pl-11 pr-10 py-3.5 bg-white rounded-2xl border border-slate-200 shadow-xs text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+            >
+            <button id="searchClearBtn" onclick="clearSearchInput()" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Filtros de Categoría -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none shrink-0">
+            <button id="cat-pill-all" onclick="setCategoryFilter('all')" class="cat-pill px-4 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap bg-slate-900 text-white shadow-xs transition">
+              Todos
+            </button>
+            <button id="cat-pill-lost" onclick="setCategoryFilter('lost')" class="cat-pill px-4 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:border-red-400 transition">
+              🚨 Perdidos
+            </button>
+            <button id="cat-pill-found" onclick="setCategoryFilter('found')" class="cat-pill px-4 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-700 transition">
+              🐾 Encontrados
+            </button>
+            <button id="cat-pill-adoption" onclick="setCategoryFilter('adoption')" class="cat-pill px-4 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 transition">
+              💛 En Adopción
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 4 Pilares / Accesos Directos -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Pilar 1: Perdidos -->
+        <div onclick="setCategoryFilter('lost')" class="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-xs cursor-pointer group flex flex-col justify-between hover:border-red-300 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-500 border border-red-100 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
+                🚨
+              </div>
+              <button onclick="event.stopPropagation(); handleGeneralPublish('lost')" class="text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg border border-red-200 transition">
+                + Publicar
+              </button>
+            </div>
+            <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base mt-3">Mascotas Perdidas</h3>
+            <span class="text-xs text-red-600 font-semibold block mt-0.5">Ver alertas activas</span>
+          </div>
+        </div>
+
+        <!-- Pilar 2: Encontrados -->
+        <div onclick="setCategoryFilter('found')" class="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-xs cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/20 transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
+                🐾
+              </div>
+              <button onclick="event.stopPropagation(); handleGeneralPublish('found')" class="text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200 transition">
+                + Publicar
+              </button>
+            </div>
+            <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base mt-3">Encontradas</h3>
+            <span class="text-xs text-emerald-600 font-semibold block mt-0.5">En tránsito seguro</span>
+          </div>
+        </div>
+
+        <!-- Pilar 3: Adopciones -->
+        <div onclick="navigateTo('adoptions')" class="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-xs cursor-pointer hover:border-purple-400 hover:bg-purple-50/20 transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
+                💛
+              </div>
+              <button onclick="event.stopPropagation(); handleGeneralPublish('adoption')" class="text-[11px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 px-2.5 py-1 rounded-lg border border-purple-200 transition">
+                + Publicar
+              </button>
+            </div>
+            <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base mt-3">Adopciones</h3>
+            <span class="text-xs text-purple-600 font-semibold block mt-0.5">Buscando hogar</span>
+          </div>
+        </div>
+
+        <!-- Pilar 4: Marketplace -->
+        <div onclick="navigateTo('marketplace')" class="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-xs cursor-pointer hover:border-blue-400 hover:bg-blue-50/20 transition group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
+                🛍️
+              </div>
+              <button onclick="event.stopPropagation(); handlePublishMarketplace()" class="text-[11px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200 transition">
+                + Publicar
+              </button>
+            </div>
+            <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base mt-3">Marketplace</h3>
+            <span class="text-xs text-blue-600 font-semibold block mt-0.5">Productos & Turnos</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Listado Amplio de Mascotas -->
+      <div>
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="font-heading font-bold text-slate-900 text-xl sm:text-2xl">Mascotas en Río Cuarto</h3>
+            <p id="petCountLabel" class="text-xs text-slate-500 mt-0.5">Cargando publicaciones...</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="resetHomeFilters()" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold transition">
+              <i class="fa-solid fa-arrow-rotate-right text-[10px]"></i> Reestablecer
+            </button>
+            <button onclick="navigateTo('map')" class="px-4 py-2 bg-brand-50 hover:bg-brand-100 text-brand-600 border border-brand-200 text-xs font-heading font-bold rounded-full transition flex items-center gap-1.5">
+              <i class="fa-solid fa-map-location-dot"></i> Ver en Mapa
+            </button>
+          </div>
+        </div>
+
+        <!-- Grilla Adaptativa -->
+        <div id="petListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================== -->
+    <!-- VISTA 2: DETALLE DE MASCOTA                            -->
+    <!-- ====================================================== -->
+    <section id="view-detail" class="spa-view pb-12">
+      <div id="petDetailContainer"></div>
+    </section>
+
+    <!-- ====================================================== -->
+    <!-- VISTA 3: MAPA COMUNITARIO INTERACTIVO                  -->
+    <!-- ====================================================== -->
+    <section id="view-map" class="spa-view space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-heading font-bold text-2xl sm:text-3xl text-slate-900">Mapa Comunitario Interactivo</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Geolocalización de mascotas y centros veterinarios en Río Cuarto</p>
+        </div>
+        <button onclick="centerMapOnUser()" class="px-4 py-2 bg-white border border-slate-200 hover:border-brand-500 text-slate-700 text-xs font-semibold rounded-full shadow-xs flex items-center gap-2 transition self-start sm:self-auto">
+          <i class="fa-solid fa-crosshairs text-brand-500"></i> Centrar en Centro de Río Cuarto
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <button onclick="refreshMapMarkers('all')" id="map-btn-all" class="px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-semibold whitespace-nowrap shadow-xs">
+          Todos los puntos
+        </button>
+        <button onclick="refreshMapMarkers('lost')" class="px-4 py-2 rounded-full bg-white text-red-600 border border-red-200 text-xs font-semibold whitespace-nowrap hover:bg-red-50">
+          🚨 Mascotas Perdidas
+        </button>
+        <button onclick="refreshMapMarkers('found')" class="px-4 py-2 rounded-full bg-white text-emerald-600 border border-emerald-200 text-xs font-semibold whitespace-nowrap hover:bg-emerald-50">
+          🐾 Mascotas Encontradas
+        </button>
+        <button onclick="refreshMapMarkers('vets')" class="px-4 py-2 rounded-full bg-white text-blue-600 border border-blue-200 text-xs font-semibold whitespace-nowrap hover:bg-blue-50">
+          🏥 Clínicas Veterinarias 24hs
+        </button>
+      </div>
+
+      <div class="relative w-full h-[520px] sm:h-[620px] rounded-3xl overflow-hidden border border-slate-200 shadow-md">
+        <div id="leafletMapContainer" class="w-full h-full"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== -->
+    <!-- VISTA 4: ADOPCIONES RESPONSABLES                       -->
+    <!-- ====================================================== -->
+    <section id="view-adoptions" class="spa-view space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-heading font-bold text-2xl sm:text-3xl text-slate-900">Adopciones Responsables</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Conectamos animales rescatados con familias de Río Cuarto</p>
+        </div>
+        <button onclick="handleGeneralPublish('adoption')" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-heading font-bold rounded-2xl shadow-md transition flex items-center gap-2 self-start sm:self-auto">
+          <i class="fa-solid fa-plus"></i> Publicar en Adopción
+        </button>
+      </div>
+
+      <div class="p-5 rounded-3xl bg-purple-50 border border-purple-100 flex items-center gap-4">
+        <span class="text-3xl">🏡</span>
+        <div>
+          <h4 class="font-heading font-bold text-purple-900 text-sm">Compromiso Ético de Adopción</h4>
+          <p class="text-xs text-purple-800/90 mt-0.5 leading-relaxed">
+            Adoptar es un acto de amor y responsabilidad. Todos los animales se entregan con vacunación al día y compromiso obligatorio de castración.
+          </p>
+        </div>
+      </div>
+
+      <div id="adoptionsListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    </section>
+
+    <!-- ====================================================== -->
+    <!-- VISTA 5: MARKETPLACE (PRODUCTOS & SERVICIOS)           -->
+    <!-- ====================================================== -->
+    <section id="view-marketplace" class="spa-view space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-heading font-bold text-2xl sm:text-3xl text-slate-900">Marketplace Local</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">Comercio de cercanía y servicios profesionales en Río Cuarto</p>
+        </div>
+        
+        <div class="flex items-center gap-3 self-start sm:self-auto">
+          <div class="flex rounded-2xl bg-slate-200/80 p-1 border border-slate-200">
+            <button id="marketTabProducts" onclick="switchMarketplaceTab('products')" class="px-4 py-2 rounded-xl font-heading font-bold text-xs bg-brand-500 text-white shadow-xs transition flex items-center gap-2">
+              <i class="fa-solid fa-bag-shopping"></i> Productos
+            </button>
+            <button id="marketTabServices" onclick="switchMarketplaceTab('services')" class="px-4 py-2 rounded-xl font-heading font-semibold text-xs text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
+              <i class="fa-solid fa-stethoscope"></i> Servicios & Turnos
+            </button>
+          </div>
+
+          <button onclick="handlePublishMarketplace()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-heading font-bold text-xs rounded-2xl shadow-xs transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> Publicar
+          </button>
+        </div>
+      </div>
+
+      <div id="marketViewProducts" class="space-y-6">
+        <div id="marketplaceProductsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+      </div>
+
+      <div id="marketViewServices" class="hidden space-y-6">
+        <div id="marketplaceServicesContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== -->
+    <!-- VISTA 6: PERFIL Y SWITCH DE ROLES                      -->
+    <!-- ====================================================== -->
+    <section id="view-profile" class="spa-view space-y-6">
+      <div id="profileContentContainer"></div>
+    </section>
+
+    <!-- ====================================================== -->
+    <!-- VISTA 7: GUARDADOS / FAVORITOS                         -->
+    <!-- ====================================================== -->
+    <section id="view-favorites" class="spa-view space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-heading font-bold text-2xl sm:text-3xl text-slate-900">Mascotas Guardadas</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Seguimiento personal de avisos y alertas de la comunidad</p>
+        </div>
+        <button onclick="navigateTo('home')" class="text-xs font-heading font-semibold text-brand-600 hover:underline">
+          Explorar más mascotas
+        </button>
+      </div>
+      <div id="favoritesListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- FOOTER ACADÉMICO / CORPORATIVO (DESKTOP)                 -->
+  <!-- ======================================================== -->
+  <footer class="hidden md:block bg-white border-t border-slate-200 mt-auto py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-brand-50 border border-brand-200 p-1 flex items-center justify-center">
+          <img src="assets/logo.png" alt="Mr. Patitas" class="w-full h-full object-contain">
+        </div>
+        <div>
+          <span class="font-heading font-bold text-slate-900 text-sm block">Mr. Patitas · Río Cuarto</span>
+          <span class="text-xs text-slate-400">Entrega Final Integradora (EFI) - Giordano & Tallone</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-6 text-xs text-slate-500 font-medium">
+        <button onclick="navigateTo('home')" class="hover:text-brand-600 transition">Inicio</button>
+        <button onclick="navigateTo('map')" class="hover:text-brand-600 transition">Mapa</button>
+        <button onclick="navigateTo('adoptions')" class="hover:text-brand-600 transition">Adopciones</button>
+        <button onclick="navigateTo('marketplace')" class="hover:text-brand-600 transition">Tienda</button>
+        <button onclick="openNotificationsModal()" class="hover:text-brand-600 transition">Alertas</button>
+      </div>
+
+      <div class="text-xs text-slate-400 font-mono">
+        Río Cuarto, Córdoba · Argentina
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- BARRA DE NAVEGACIÓN INFERIOR PERSISTENTE (MÓVIL)        -->
+  <!-- ======================================================== -->
+  <nav id="appBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200/80 shadow-lg">
+    <div class="max-w-md mx-auto px-4 h-16 flex items-center justify-around">
+      <button id="nav-btn-home" onclick="navigateTo('home')" class="flex flex-col items-center justify-center text-brand-500 font-bold transition">
+        <i class="fa-solid fa-house text-lg"></i>
+        <span class="text-[10px] mt-1 font-heading">Inicio</span>
+      </button>
+      <button id="nav-btn-map" onclick="navigateTo('map')" class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition">
+        <i class="fa-solid fa-map-location-dot text-lg"></i>
+        <span class="text-[10px] mt-1 font-heading">Mapa</span>
+      </button>
+      <button id="nav-btn-adoptions" onclick="navigateTo('adoptions')" class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition">
+        <i class="fa-solid fa-heart text-lg"></i>
+        <span class="text-[10px] mt-1 font-heading">Adopción</span>
+      </button>
+      <button id="nav-btn-marketplace" onclick="navigateTo('marketplace')" class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition">
+        <i class="fa-solid fa-store text-lg"></i>
+        <span class="text-[10px] mt-1 font-heading">Tienda</span>
+      </button>
+      <button id="nav-btn-profile" onclick="navigateTo('profile')" class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition">
+        <i class="fa-regular fa-user text-lg"></i>
+        <span class="text-[10px] mt-1 font-heading">Perfil</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ======================================================== -->
+  <!-- MODALES DEL SISTEMA                                      -->
+  <!-- ======================================================== -->
+
+  <!-- 1. MODAL DE AUTENTICACIÓN (LOGIN & REGISTRO) -->
+  <div id="authModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 my-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-brand-50 border border-brand-200 p-1 flex items-center justify-center">
+            <img src="assets/logo.png" alt="Logo" class="w-full h-full object-contain">
+          </div>
+          <div>
+            <h3 class="font-heading font-extrabold text-lg text-slate-900 leading-tight">Acceso Requerido</h3>
+            <span class="text-[11px] text-slate-400">Comunidad Mr. Patitas</span>
+          </div>
+        </div>
+        <button onclick="closeAuthModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed flex items-start gap-2.5">
+        <i class="fa-solid fa-shield-cat text-amber-600 text-sm mt-0.5 shrink-0"></i>
+        <div>
+          <strong class="font-semibold block">Acción Protegida:</strong>
+          <span id="authModalReason">Para publicar alertas comunitarias o contactar directamente a los dueños, por favor iniciá sesión o registrate.</span>
+        </div>
+      </div>
+
+      <div class="flex rounded-2xl bg-slate-100 p-1 border border-slate-200">
+        <button id="modalTabLogin" onclick="switchAuthModalTab('login')" class="flex-1 py-2 rounded-xl font-heading font-bold text-xs bg-white text-slate-900 shadow-xs transition">
+          Iniciar Sesión
+        </button>
+        <button id="modalTabRegister" onclick="switchAuthModalTab('register')" class="flex-1 py-2 rounded-xl font-heading font-semibold text-xs text-slate-600 hover:text-slate-900 transition">
+          Crear Cuenta
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="modalSubViewLogin" class="space-y-4">
+        <form id="modalLoginForm" onsubmit="handleModalLogin(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Correo Electrónico *</label>
+            <input type="email" id="loginEmail" required placeholder="tu@email.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Contraseña *</label>
+            <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">
+            Iniciar Sesión
+          </button>
+        </form>
+
+        <div class="pt-2 border-t border-slate-100 space-y-2">
+          <span class="text-[11px] text-slate-400 font-medium block">⚡ Atajos para evaluación rápida:</span>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="fillDemoCredentials('vecino')" class="py-1.5 px-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold text-left transition">
+              👤 Cuenta Vecino
+            </button>
+            <button type="button" onclick="fillDemoCredentials('proveedor')" class="py-1.5 px-2.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 rounded-lg text-[11px] font-semibold text-left transition">
+              🏥 Cuenta Veterinaria
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div id="modalSubViewRegister" class="hidden space-y-4">
+        <form id="modalRegisterForm" onsubmit="handleModalRegister(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Nombre Completo *</label>
+            <input type="text" id="regName" required placeholder="Ej. Lucila Tallone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="font-semibold text-slate-700 block mb-1">Correo *</label>
+              <input type="email" id="regEmail" required placeholder="tu@email.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700 block mb-1">WhatsApp *</label>
+              <input type="tel" id="regPhone" required placeholder="3584123456" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+            </div>
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Barrio *</label>
+            <select id="regBarrio" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
+              <option value="Centro">Centro</option>
+              <option value="Banda Norte">Banda Norte</option>
+              <option value="Alberdi">Alberdi</option>
+              <option value="Macrocentro">Macrocentro</option>
+              <option value="Sur">Sur / Bimaco</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="font-semibold text-slate-700 block mb-1">Contraseña *</label>
+              <input type="password" id="regPassword" required placeholder="Mínimo 6" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700 block mb-1">Confirmar *</label>
+              <input type="password" id="regPasswordConfirm" required placeholder="Repetir" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+            </div>
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Tipo de Perfil</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="regRole" value="vecino" checked class="peer hidden">
+                <div class="p-2.5 rounded-xl border border-slate-200 text-center peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600">
+                  <span class="font-bold block text-xs">Vecino</span>
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="regRole" value="proveedor" class="peer hidden">
+                <div class="p-2.5 rounded-xl border border-slate-200 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-600">
+                  <span class="font-bold block text-xs">Veterinaria</span>
+                </div>
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">
+            Crear Cuenta e Ingresar
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. MODAL DE CONTACTO WHATSAPP -->
+  <div id="contactModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">
+          <i class="fa-brands fa-whatsapp"></i>
+        </div>
+        <button onclick="closeContactModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div>
+        <h3 class="font-heading font-bold text-lg text-slate-900">
+          Contactar por <span id="contactModalPetName">Mascota</span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">WhatsApp: <span id="contactModalPhone" class="font-mono font-bold text-slate-800"></span></p>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 italic">
+        "<span id="contactModalMessage"></span>"
+      </div>
+      <a id="contactModalWhatsappBtn" target="_blank" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
+        <i class="fa-brands fa-whatsapp text-lg"></i> Abrir WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <!-- 3. MODAL DE REPORTE -->
+  <div id="reportModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-8">
+      <div class="flex items-center justify-between">
+        <h3 class="font-heading font-bold text-lg text-slate-900">Crear Publicación</h3>
+        <button onclick="closeReportModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="reportForm" class="space-y-4 text-xs">
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">Sección *</label>
+          <select id="reportPetType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold">
+            <option value="lost">🚨 Mascota Perdida</option>
+            <option value="found">🐾 Mascota Encontrada</option>
+            <option value="adoption">💛 En Adopción</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Nombre *</label>
+            <input type="text" id="reportPetName" required placeholder="Ej. Milo" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Especie *</label>
+            <select id="reportPetSpecies" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
+              <option value="perro">Perro</option>
+              <option value="gato">Gato</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Zona Río Cuarto *</label>
+            <select id="reportPetZone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold">
+              <option value="Centro">Centro</option>
+              <option value="Banda Norte">Banda Norte</option>
+              <option value="Alberdi">Alberdi</option>
+              <option value="Macrocentro">Macrocentro</option>
+              <option value="Sur">Sur / Bimaco</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Raza/Color *</label>
+            <input type="text" id="reportPetBreed" required placeholder="Ej. Atigrado" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+          </div>
+        </div>
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">Descripción *</label>
+          <textarea id="reportPetDesc" rows="2" required placeholder="Detalles de avistamiento..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200"></textarea>
+        </div>
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">Teléfono WhatsApp *</label>
+          <input type="tel" id="reportPetPhone" required placeholder="3584123456" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+        </div>
+        <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">
+          Publicar Alerta Inmediata
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. MODAL CARRITO -->
+  <div id="cartModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-heading font-bold text-lg text-slate-900">Carrito Local</h3>
+        <button onclick="closeCartModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="cartItemsContainer" class="space-y-2 max-h-64 overflow-y-auto"></div>
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-xs text-slate-500">Total:</span>
+        <span id="cartTotalLabel" class="font-heading font-extrabold text-xl text-slate-900">$0</span>
+      </div>
+      <button onclick="startCheckout()" class="w-full py-3.5 bg-brand-500 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">Iniciar Compra Segura</button>
+    </div>
+  </div>
+
+  <!-- 5. MODAL CHECKOUT -->
+  <div id="checkoutModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-heading font-bold text-lg text-slate-900">Finalizar Compra</h3>
+        <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="checkoutForm" class="space-y-4 text-xs">
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">Entrega</label>
+          <select class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
+            <option>Envío a domicilio en Río Cuarto</option>
+            <option>Retiro por local adherido</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">Pago</label>
+          <select class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
+            <option>Mercado Pago</option>
+            <option>Efectivo</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-3.5 bg-brand-500 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">Confirmar Pedido</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. MODAL ORDEN EXITOSA -->
+  <div id="orderSuccessModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-3xl">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="font-heading font-extrabold text-xl text-slate-900">¡Pedido Confirmado!</h3>
+      <button onclick="closeOrderSuccessModal()" class="w-full py-3 bg-slate-900 text-white font-heading font-bold text-xs rounded-xl transition">Volver a la Tienda</button>
+    </div>
+  </div>
+
+  <!-- 7. MODAL RESERVA SERVICIOS -->
+  <div id="serviceBookingModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-heading font-bold text-base text-slate-900">Reservar Turno</h3>
+        <button onclick="closeBookingModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-3 rounded-2xl bg-brand-50 border border-brand-100">
+        <h4 id="bookingModalServiceTitle" class="font-heading font-bold text-xs text-slate-900">Servicio</h4>
+        <span id="bookingModalProvider" class="text-[11px] text-slate-500 block">Proveedor</span>
+        <span id="bookingModalPrice" class="font-bold text-brand-600 text-xs block mt-1">$0</span>
+      </div>
+      <form id="serviceBookingForm" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">Fecha</label>
+          <input type="date" required value="2026-11-12" class="w-full px-3 py-2 rounded-xl border border-slate-200">
+        </div>
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">Horario</label>
+          <div id="bookingTimesSlots" class="grid grid-cols-3 gap-1.5"></div>
+        </div>
+        <button type="submit" class="w-full py-3 bg-brand-500 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">Confirmar Turno</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. MODAL POSTULACIÓN ADOPCIÓN -->
+  <div id="adoptionFormModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-heading font-bold text-base text-slate-900">Postulación por <span id="adoptionModalPetName">Mascota</span></h3>
+        <button onclick="closeAdoptionFormModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="adoptionApplicationForm" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">¿Espacio cerrado? *</label>
+          <select required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
+            <option>Sí, patio cerrado</option>
+            <option>Departamento con red</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">WhatsApp *</label>
+          <input type="tel" required placeholder="3584123456" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+        </div>
+        <button type="submit" class="w-full py-3 bg-brand-500 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">Enviar Postulación</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 9. MODAL NOTIFICACIONES -->
+  <div id="notificationsModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-heading font-bold text-base text-slate-900">Alertas Comunitarias</h3>
+        <button onclick="closeNotificationsModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-2 text-xs">
+        <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200">
+          <span class="font-bold text-amber-900 block">🚨 Posible avistamiento de Milo</span>
+          <p class="text-slate-600 mt-0.5">Cerca de Plaza Roca hace 20 minutos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastNotification" class="hidden fixed top-5 inset-x-0 z-50 flex justify-center pointer-events-none px-4 transition-all duration-300 transform translate-y-10 opacity-0">
+    <div class="pointer-events-auto bg-slate-900/95 backdrop-blur text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 max-w-sm text-xs font-medium">
+      <i id="toastIcon" class="fa-solid fa-circle-info text-brand-400 text-lg"></i>
+      <span id="toastMessage">Notificación</span>
+    </div>
+  </div>
+
+  <!-- Script Principal SPA -->
+  <script src="app.js"></script>
+</body>
+</html>

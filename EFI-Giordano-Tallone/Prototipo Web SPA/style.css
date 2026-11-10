@@ -1,0 +1,215 @@
+/* 
+ * ========================================================
+ * MR. PATITAS - SISTEMA DE DISEÑO Y ESTILOS
+ * Proyecto: Red Comunitaria de Mascotas - Río Cuarto
+ * Entrega Final Integradora (EFI) - Giordano & Tallone
+ * ========================================================
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
+
+:root {
+  --brand-50: #FFF4EE;
+  --brand-100: #FFE4D6;
+  --brand-200: #FFC4A8;
+  --brand-300: #FFA37A;
+  --brand-400: #FF8757;
+  --brand-500: #FF6B35; /* Color principal de marca */
+  --brand-600: #E05320;
+  --brand-700: #BA3E13;
+  --brand-800: #942E0C;
+  --brand-900: #6E1F07;
+
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+  color: #1e293b;
+  background-color: #f8fafc;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-heading);
+}
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-500);
+}
+
+/* Transiciones fluidas entre vistas SPA */
+.spa-view {
+  display: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spa-view.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Touch targets móviles recomendados (>= 44px) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Encabezados y barras con efecto Glassmorphism */
+.glass-header {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.glass-bottom-bar {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ======================================================== */
+/* ACENTO VISUAL DE ALERTA PARA CATEGORÍA "PERDIDOS" (HOVER) */
+/* Sin texto explícito "Urgente" - Requerimiento UX/UI      */
+/* ======================================================== */
+.pill-lost-alert {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.pill-lost-alert:hover {
+  background-color: #FEF2F2 !important;
+  color: #DC2626 !important;
+  border-color: #F87171 !important;
+  box-shadow: 0 4px 14px -2px rgba(220, 38, 38, 0.25);
+  transform: translateY(-1px);
+}
+
+.pill-lost-alert.active {
+  background-color: #DC2626 !important;
+  color: #FFFFFF !important;
+  border-color: #DC2626 !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* Acento en la tarjeta de acceso rápido de Mascotas Perdidas */
+.quick-access-lost {
+  transition: all 0.25s ease;
+}
+.quick-access-lost:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(255, 107, 53, 0.1)) !important;
+  border-color: #EF4444 !important;
+  box-shadow: 0 8px 24px -4px rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Badges visuales de estado */
+.badge-lost {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.badge-found {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-adopt {
+  background-color: #F5F3FF;
+  color: #7C3AED;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+/* Personalización de Pines y Popups de Leaflet */
+.custom-map-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
+  transition: transform 0.2s ease;
+}
+.custom-map-pin:hover {
+  transform: scale(1.15);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 1.25rem;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.15), 0 8px 12px -6px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4;
+}
+
+/* Switch dinámico de roles en Perfil */
+.role-toggle-checkbox:checked + .role-toggle-label {
+  background-color: var(--brand-500);
+}
+.role-toggle-checkbox:checked + .role-toggle-label .role-toggle-dot {
+  transform: translateX(100%);
+}
+
+/* Animación de apertura de modales */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-enter {
+  animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+/* Ocultar todas las vistas de la SPA por defecto */
+.spa-view {
+  display: none;
+}
+
+/* Mostrar la vista activa estándar */
+.spa-view.active {
+  display: block;
+}
+
+/* Excepción para la pantalla de bienvenida que utiliza diseño flexbox */
+#view-welcome.active {
+  display: flex;
+}
+
+.spa-view {
+  display: none !important;
+}
+.spa-view.active {
+  display: block !important;
+}
+#view-welcome.active {
+  display: flex !important;
+}
