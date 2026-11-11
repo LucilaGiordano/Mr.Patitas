@@ -292,20 +292,21 @@
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         
        <!-- Pilar 1: Perdidos (Destacado con fondo y bordes en tonos rojos de alerta) -->
-<div onclick="setCategoryFilter('lost')" class="p-5 rounded-3xl bg-red-50/80 border-2 border-red-200 shadow-xs cursor-pointer group flex flex-col justify-between hover:border-red-400 hover:bg-red-50 transition">
-  <div>
-    <div class="flex items-center justify-between">
-      <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 border border-red-200 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
-        🚨
-      </div>
-      <button onclick="event.stopPropagation(); handleGeneralPublish('lost')" class="text-[11px] font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-xl shadow-sm transition">
-        + Publicar
-      </button>
-    </div>
-    <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base mt-3">Mascotas Perdidas</h3>
-    <span class="text-xs text-red-700 font-semibold block mt-0.5">Ver alertas activas</span>
-  </div>
-</div>
+       <div onclick="setCategoryFilter('lost')" class="p-5 rounded-3xl bg-red-50/80 border-2 border-red-200 shadow-xs cursor-pointer group flex flex-col justify-between hover:border-red-400 hover:bg-red-50 transition">
+         <div>
+           <div class="flex items-center justify-between">
+             <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 border border-red-200 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
+               🚨
+             </div>
+             <button onclick="event.stopPropagation(); handleGeneralPublish('lost')" class="text-[11px] font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-xl shadow-sm transition">
+               + Publicar
+             </button>
+           </div>
+           <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base mt-3">Mascotas Perdidas</h3>
+           <span class="text-xs text-red-700 font-semibold block mt-0.5">Ver alertas activas</span>
+         </div>
+       </div>
+
         <!-- Pilar 2: Encontrados -->
         <div onclick="setCategoryFilter('found')" class="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-xs cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/20 transition group flex flex-col justify-between">
           <div>
@@ -724,7 +725,6 @@
   </div>
 
   <!-- 3. MODAL DE REPORTE -->
-  <!-- MODAL DE FORMULARIO DE REPORTE / PUBLICACIÓN MEJORADO -->
   <div id="reportModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 my-8 animate-modal-enter">
       <div class="flex items-center justify-between">
@@ -867,6 +867,7 @@
       </form>
     </div>
   </div>
+
   <!-- 4. MODAL CARRITO -->
   <div id="cartModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
