@@ -364,6 +364,55 @@ const AppState = {
 };
 
 // ==========================================
+// FUNCIONES GLOBALES DE MODALES Y UI
+// ==========================================
+window.openReportPetModal = function(defaultType = 'lost') {
+  requireAuth(() => {
+    const modal = document.getElementById('reportModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      const form = document.getElementById('reportForm');
+      if (form) form.reset();
+      const typeSelect = document.getElementById('reportPetType');
+      if (typeSelect) typeSelect.value = defaultType;
+      const preview = document.getElementById('reportPreviewImg');
+      const placeholder = document.getElementById('reportUploadPlaceholder');
+      if (preview) {
+        preview.src = '';
+        preview.classList.add('hidden');
+      }
+      if (placeholder) placeholder.classList.remove('hidden');
+    }
+  }, 'Para crear un reporte comunitario y proteger a las mascotas de Río Cuarto, por favor iniciá sesión.');
+};
+
+window.closeReportModal = function() {
+  const modal = document.getElementById('reportModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+};
+
+window.previewReportImage = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById('reportPreviewImg');
+    const placeholder = document.getElementById('reportUploadPlaceholder');
+    if (preview && placeholder) {
+      preview.src = e.target.result;
+      preview.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+// ==========================================
 // INICIALIZACIÓN Y PERSISTENCIA (LOCALSTORAGE)
 // ==========================================
 function initApp() {
@@ -432,11 +481,10 @@ function saveToStorage() {
 // ==========================================
 // NAVEGACIÓN SPA DINÁMICA (SIN RECARGA)
 // ==========================================
-function navigateTo(viewName, params = {}) {
-  // Ocultar todas las vistas SPA
+window.navigateTo = function(viewName, params = {}) {
   document.querySelectorAll('.spa-view').forEach(v => {
     v.classList.remove('active');
-    v.style.display = 'none'; // Forzar ocultamiento físico para evitar bloqueos de clic
+    v.style.display = 'none';
   });
 
   AppState.activeView = viewName;
@@ -459,10 +507,7 @@ function navigateTo(viewName, params = {}) {
   const targetView = document.getElementById(`view-${viewName}`);
   if (targetView) {
     targetView.classList.add('active');
-    targetView.style.display = 'block'; // Forzar visualización de la vista activa
-    if (viewName === 'welcome') {
-      targetView.style.display = 'flex'; // La bienvenida usa flex
-    }
+    targetView.style.display = viewName === 'welcome' ? 'flex' : 'block';
   }
 
   updateNavIndicators(viewName);
@@ -483,36 +528,9 @@ function navigateTo(viewName, params = {}) {
   } else if (viewName === 'favorites') {
     renderFavorites();
   }
-}
-
-  const targetView = document.getElementById(`view-${viewName}`);
-  if (targetView) {
-    targetView.classList.add('active');
-  }
-
-  updateNavIndicators(viewName);
-
-  // Renderizados dinámicos según vista
-  if (viewName === 'home') {
-    renderPetCards();
-  } else if (viewName === 'detail') {
-    if (params.id) AppState.currentPetDetailId = params.id;
-    renderPetDetail(AppState.currentPetDetailId || 'milo');
-  } else if (viewName === 'map') {
-    setTimeout(() => refreshMap(), 150);
-  } else if (viewName === 'adoptions') {
-    renderAdoptions();
-  } else if (viewName === 'marketplace') {
-    renderMarketplace();
-  } else if (viewName === 'profile') {
-    renderProfile();
-  } else if (viewName === 'favorites') {
-    renderFavorites();
-  }
-
+};
 
 function updateNavIndicators(viewName) {
-  // Barra inferior móvil
   const mobileNavItems = ['home', 'map', 'adoptions', 'marketplace', 'profile'];
   mobileNavItems.forEach(item => {
     const el = document.getElementById(`nav-btn-${item}`);
@@ -527,7 +545,6 @@ function updateNavIndicators(viewName) {
     }
   });
 
-  // Barra de navegación superior de escritorio
   const desktopNavItems = ['home', 'map', 'adoptions', 'marketplace', 'favorites'];
   desktopNavItems.forEach(item => {
     const el = document.getElementById(`dnav-${item}`);
@@ -553,20 +570,24 @@ function requireAuth(actionCallback, reasonMsg = 'Para realizar esta acción com
   }
 }
 
-// Handlers centralizados de publicación protegida en cualquiera de las 4 secciones
-function handleGeneralPublish(defaultType = 'lost') {
-  requireAuth(() => {
+window.handleGeneralPublish = function(defaultType = 'lost') {
+  if (AppState.currentUser && AppState.currentUser.isLogged) {
     openReportPetModal(defaultType);
-  }, `Para publicar una mascota (${defaultType === 'lost' ? 'Perdida' : (defaultType === 'found' ? 'Encontrada' : 'En Adopción')}) en la red de Río Cuarto, por favor iniciá sesión.`);
-}
+  } else {
+    AppState.pendingProtectedAction = () => {
+      openReportPetModal(defaultType);
+    };
+    openAuthModal('login', 'Para publicar una mascota en la red de Río Cuarto, por favor iniciá sesión con tu cuenta.');
+  }
+};
 
-function handlePublishMarketplace() {
+window.handlePublishMarketplace = function() {
   requireAuth(() => {
     showToast('Formulario para publicar producto o servicio comercial habilitado.', 'info');
   }, 'Para publicar productos o servicios profesionales en el Marketplace local, iniciá sesión.');
-}
+};
 
-function openAuthModal(defaultTab = 'login', reasonMsg = null) {
+window.openAuthModal = function(defaultTab = 'login', reasonMsg = null) {
   const modal = document.getElementById('authModal');
   const reasonEl = document.getElementById('authModalReason');
   if (reasonEl) {
@@ -577,15 +598,15 @@ function openAuthModal(defaultTab = 'login', reasonMsg = null) {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
   }
-}
+};
 
-function closeAuthModal() {
+window.closeAuthModal = function() {
   const modal = document.getElementById('authModal');
   if (modal) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
-}
+};
 
 function switchAuthModalTab(tab) {
   const tabLogin = document.getElementById('modalTabLogin');
@@ -606,7 +627,7 @@ function switchAuthModalTab(tab) {
   }
 }
 
-function fillDemoCredentials(role) {
+window.fillDemoCredentials = function(role) {
   const emailInput = document.getElementById('loginEmail');
   const passInput = document.getElementById('loginPassword');
   if (role === 'vecino') {
@@ -617,9 +638,9 @@ function fillDemoCredentials(role) {
     if (passInput) passInput.value = 'password123';
   }
   showToast('Credenciales completadas. Presioná "Iniciar Sesión" para ingresar.', 'info');
-}
+};
 
-function handleModalLogin(e) {
+window.handleModalLogin = function(e) {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pass = document.getElementById('loginPassword').value.trim();
@@ -648,9 +669,9 @@ function handleModalLogin(e) {
   } else {
     showToast('Credenciales incorrectas. Verificá los datos o usá los atajos demo.', 'error');
   }
-}
+};
 
-function handleModalRegister(e) {
+window.handleModalRegister = function(e) {
   e.preventDefault();
   const name = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim().toLowerCase();
@@ -710,16 +731,16 @@ function handleModalRegister(e) {
   } else {
     navigateTo('home');
   }
-}
+};
 
-function logout() {
+window.logout = function() {
   AppState.currentUser = null;
   AppState.userRole = 'vecino';
   saveToStorage();
   updateHeaderUserPill();
   showToast('Has cerrado sesión. Ahora navegás como Invitado.', 'info');
   navigateTo('home');
-}
+};
 
 function updateHeaderUserPill() {
   const pill = document.getElementById('headerUserPill');
@@ -745,7 +766,7 @@ function updateHeaderUserPill() {
 // ==========================================
 // FILTRADO Y BÚSQUEDA EN TIEMPO REAL
 // ==========================================
-function setCategoryFilter(category) {
+window.setCategoryFilter = function(category) {
   AppState.selectedCategory = category;
 
   const pills = ['all', 'lost', 'found', 'adoption'];
@@ -772,23 +793,23 @@ function setCategoryFilter(category) {
   });
 
   renderPetCards();
-}
+};
 
-function handleZoneChange(zone) {
+window.handleZoneChange = function(zone) {
   AppState.selectedZone = zone;
   renderPetCards();
   showToast(`Filtrando publicaciones de: ${zone}`, 'info');
-}
+};
 
-function clearSearchInput() {
+window.clearSearchInput = function() {
   const input = document.getElementById('homeSearchInput');
   const clearBtn = document.getElementById('searchClearBtn');
   if (input) input.value = '';
   if (clearBtn) clearBtn.classList.add('hidden');
   renderPetCards();
-}
+};
 
-function resetHomeFilters() {
+window.resetHomeFilters = function() {
   AppState.selectedZone = 'Todas';
   AppState.selectedCategory = 'all';
   clearSearchInput();
@@ -797,7 +818,7 @@ function resetHomeFilters() {
   if (zoneSelect) zoneSelect.value = 'Todas';
 
   setCategoryFilter('all');
-}
+};
 
 function renderPetCards() {
   const container = document.getElementById('petListContainer');
@@ -863,19 +884,16 @@ function renderPetCards() {
         <div class="relative w-full h-52 bg-slate-100 overflow-hidden">
           <img src="${photo}" alt="${pet.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
           
-          <!-- Badge de Estado Oficial -->
           <div class="absolute top-3 left-3">
             <span class="px-3 py-1 rounded-full text-xs font-heading font-bold shadow-xs ${badgeClass}">
               ${pet.type === 'lost' ? '🚨 ' : (pet.type === 'found' ? '🐾 ' : '💛 ')} ${pet.badge}
             </span>
           </div>
 
-          <!-- Botón Favorito Interactivo -->
           <button onclick="event.stopPropagation(); toggleFavorite('${pet.id}')" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/95 hover:bg-white text-slate-600 hover:text-brand-500 shadow-md flex items-center justify-center transition">
             <i class="${isFav ? 'fa-solid fa-heart text-brand-500' : 'fa-regular fa-heart'} text-sm"></i>
           </button>
 
-          <!-- Barrio en Sticker -->
           <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-sm text-white px-3 py-1 rounded-xl text-xs flex items-center gap-1.5 font-medium">
             <i class="fa-solid fa-location-dot text-brand-400"></i> ${pet.zone} · ${pet.distance}
           </div>
@@ -910,12 +928,12 @@ function renderPetCards() {
 }
 
 // ==========================================
-// FICHA EN DETALLE DE MASCOTA (CASO MILO)
+// FICHA EN DETALLE DE MASCOTA
 // ==========================================
-function openPetDetail(petId) {
+window.openPetDetail = function(petId) {
   AppState.currentPetDetailId = petId;
   navigateTo('detail', { id: petId });
-}
+};
 
 function renderPetDetail(petId) {
   const container = document.getElementById('petDetailContainer');
@@ -926,7 +944,6 @@ function renderPetDetail(petId) {
   const badgeClass = pet.type === 'lost' ? 'bg-red-600 text-white' : (pet.type === 'found' ? 'bg-emerald-600 text-white' : 'bg-purple-600 text-white');
 
   container.innerHTML = `
-    <!-- Barra superior de navegación en detalle -->
     <div class="flex items-center justify-between mb-4">
       <button onclick="navigateTo('home')" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 text-xs font-heading font-semibold rounded-full border border-slate-200 shadow-xs flex items-center gap-2 transition">
         <i class="fa-solid fa-arrow-left"></i> Volver al listado
@@ -941,12 +958,8 @@ function renderPetDetail(petId) {
       </div>
     </div>
 
-    <!-- Grilla Adaptativa Real: 2 columnas en Desktop, 1 columna en Mobile -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      
-      <!-- Columna Izquierda: Galería fotográfica y Mapa de proximidad -->
       <div class="lg:col-span-6 space-y-4">
-        
         <div class="relative w-full h-80 sm:h-96 rounded-3xl overflow-hidden shadow-md bg-slate-900 border border-slate-200">
           <img id="detailHeroImage" src="${pet.images[0]}" alt="${pet.name}" class="w-full h-full object-cover">
           
@@ -959,7 +972,6 @@ function renderPetDetail(petId) {
           </div>
         </div>
 
-        <!-- Mapa de Proximidad con Pin Barrial -->
         <div class="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3">
           <div class="flex items-center justify-between">
             <div>
@@ -988,12 +1000,9 @@ function renderPetDetail(petId) {
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- Columna Derecha: Ficha Técnica, Contacto y CTA de WhatsApp -->
       <div class="lg:col-span-6 space-y-6">
-        
         <div>
           <div class="inline-block px-4 py-1.5 rounded-full text-xs font-heading font-bold uppercase tracking-wider shadow-xs ${badgeClass} mb-3">
             ${pet.badge} en ${pet.zone}, Río Cuarto
@@ -1015,7 +1024,6 @@ function renderPetDetail(petId) {
           <p class="text-slate-600 text-sm leading-relaxed">${pet.description}</p>
         </div>
 
-        <!-- Grilla de Características -->
         <div>
           <h3 class="font-heading font-bold text-slate-900 text-base mb-3">Ficha Técnica</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -1046,7 +1054,6 @@ function renderPetDetail(petId) {
           </div>
         </div>
 
-        <!-- Usuario que publica -->
         <div class="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-heading font-bold text-lg">
@@ -1062,7 +1069,6 @@ function renderPetDetail(petId) {
           <span class="text-xs text-slate-400">Miembro 2026</span>
         </div>
 
-        <!-- BOTÓN PRINCIPAL PROTEGIDO: Contactar al dueño -->
         <div class="pt-2">
           <button onclick="handleContactOwner('${pet.id}')" class="w-full py-4 px-6 bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white font-heading font-bold text-base rounded-2xl shadow-xl shadow-brand-500/30 transition-all flex items-center justify-center gap-3">
             <i class="fa-brands fa-whatsapp text-2xl"></i>
@@ -1072,28 +1078,26 @@ function renderPetDetail(petId) {
             Por seguridad comunitaria, se requiere identificación previa para contactar al dueño.
           </p>
         </div>
-
       </div>
-
     </div>
   `;
 }
 
-function switchDetailPhoto(src) {
+window.switchDetailPhoto = function(src) {
   const hero = document.getElementById('detailHeroImage');
   if (hero) hero.src = src;
-}
+};
 
-function handleContactOwner(petId) {
+window.handleContactOwner = function(petId) {
   const pet = AppState.pets.find(p => p.id === petId);
   if (!pet) return;
 
   requireAuth(() => {
     openContactModal(pet);
   }, `Para contactar por WhatsApp al dueño de ${pet.name} y proteger la privacidad comunitaria, por favor iniciá sesión.`);
-}
+};
 
-function openContactModal(pet) {
+window.openContactModal = function(pet) {
   const modal = document.getElementById('contactModal');
   const petNameEl = document.getElementById('contactModalPetName');
   const phoneEl = document.getElementById('contactModalPhone');
@@ -1117,74 +1121,40 @@ function openContactModal(pet) {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
   }
-}
+};
 
-function closeContactModal() {
+window.closeContactModal = function() {
   const modal = document.getElementById('contactModal');
   if (modal) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
-}
+};
 
 // ==========================================
-// FORMULARIO DE REPORTE CON VALIDACIÓN COMPLETA
+// FORMULARIO DE REPORTE CON CAMPOS OPCIONALES Y SUBIDA DE FOTO
 // ==========================================
-function openReportPetModal(defaultType = 'lost') {
-  requireAuth(() => {
-    const modal = document.getElementById('reportModal');
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      document.getElementById('reportForm').reset();
-      const typeSelect = document.getElementById('reportPetType');
-      if (typeSelect) typeSelect.value = defaultType;
-      const preview = document.getElementById('reportPreviewImg');
-      const placeholder = document.getElementById('reportUploadPlaceholder');
-      if (preview) preview.classList.add('hidden');
-      if (placeholder) placeholder.classList.remove('hidden');
-    }
-  }, 'Para crear un reporte comunitario y proteger a las mascotas de Río Cuarto, por favor iniciá sesión.');
-}
-
-function closeReportModal() {
-  const modal = document.getElementById('reportModal');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
-}
-
-function previewReportImage(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const preview = document.getElementById('reportPreviewImg');
-    const placeholder = document.getElementById('reportUploadPlaceholder');
-    if (preview && placeholder) {
-      preview.src = e.target.result;
-      preview.classList.remove('hidden');
-      placeholder.classList.add('hidden');
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-function handleReportSubmit(e) {
+window.handleReportSubmit = function(e) {
   e.preventDefault();
 
   const name = document.getElementById('reportPetName').value.trim();
   const type = document.getElementById('reportPetType').value;
   const species = document.getElementById('reportPetSpecies').value;
-  const breed = document.getElementById('reportPetBreed').value.trim();
+  const breed = document.getElementById('reportPetBreed').value.trim() || 'Mestizo / Sin especificar';
   const zone = document.getElementById('reportPetZone').value;
-  const description = document.getElementById('reportPetDesc').value.trim();
+  const description = document.getElementById('reportPetDesc').value.trim() || 'Sin descripción adicional proporcionada por el vecino.';
   const phone = document.getElementById('reportPetPhone').value.trim();
+  const rewardInput = document.getElementById('reportPetReward').value.trim();
 
-  if (!name || !breed || !description || !phone) {
-    showToast('Completá todos los campos obligatorios.', 'error');
+  const sexo = document.getElementById('reportDetailSexo').value;
+  const edad = document.getElementById('reportDetailEdad').value.trim() || 'No especificada';
+  const tamano = document.getElementById('reportDetailTamano').value;
+  const collar = document.getElementById('reportDetailCollar').value.trim() || 'Sin collar visible';
+  const castrado = document.getElementById('reportDetailCastrado').value;
+  const chip = document.getElementById('reportDetailChip').value;
+
+  if (!name || !phone) {
+    showToast('Por favor completá el Nombre y el Teléfono de contacto.', 'error');
     return;
   }
 
@@ -1195,10 +1165,9 @@ function handleReportSubmit(e) {
   else if (zone === 'Macrocentro') { lat = -33.1280; lng = -64.3540; }
   else if (zone === 'Sur') { lat = -33.1450; lng = -64.3500; }
 
-  let photoUrl = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80';
-  if (species === 'gato') {
-    photoUrl = 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80';
-  }
+  let photoUrl = species === 'gato' 
+    ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80'
+    : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80';
 
   const preview = document.getElementById('reportPreviewImg');
   if (preview && preview.src && !preview.classList.contains('hidden')) {
@@ -1220,18 +1189,18 @@ function handleReportSubmit(e) {
     images: [photoUrl],
     description: description,
     details: {
-      edad: 'No especificada',
-      sexo: 'Macho/Hembra',
-      tamano: 'Mediano',
-      collar: 'Visible en foto',
-      castrado: 'A verificar',
-      chip: 'No'
+      edad: edad,
+      sexo: sexo,
+      tamano: tamano,
+      collar: collar,
+      castrado: castrado,
+      chip: chip
     },
     contactName: AppState.currentUser ? AppState.currentUser.name : 'Vecino de Río Cuarto',
     contactPhone: phone,
     lat: lat,
     lng: lng,
-    reward: null,
+    reward: rewardInput ? (rewardInput.startsWith('$') ? rewardInput : '$' + rewardInput) : null,
     ownerEmail: AppState.currentUser ? AppState.currentUser.email : ''
   };
 
@@ -1239,10 +1208,10 @@ function handleReportSubmit(e) {
   saveToStorage();
 
   closeReportModal();
-  showToast('¡Reporte publicado con éxito en la red comunitaria!', 'success');
+  showToast('¡Reporte publicado con éxito en la red de Río Cuarto!', 'success');
   addPetMarkerToMap(newPet);
   openPetDetail(newPet.id);
-}
+};
 
 // ==========================================
 // MAPA COMUNITARIO LEAFLET (RÍO CUARTO)
@@ -1261,15 +1230,15 @@ function initMap() {
   refreshMapMarkers('all');
 }
 
-function refreshMap() {
+window.refreshMap = function() {
   if (AppState.mapInstance) {
     AppState.mapInstance.invalidateSize();
   } else {
     initMap();
   }
-}
+};
 
-function refreshMapMarkers(filterType = 'all') {
+window.refreshMapMarkers = function(filterType = 'all') {
   if (!AppState.mapInstance) return;
 
   AppState.mapMarkers.forEach(m => AppState.mapInstance.removeLayer(m));
@@ -1316,7 +1285,7 @@ function refreshMapMarkers(filterType = 'all') {
       AppState.mapMarkers.push(marker);
     });
   }
-}
+};
 
 function addPetMarkerToMap(pet) {
   if (!AppState.mapInstance) return;
@@ -1352,12 +1321,12 @@ function addPetMarkerToMap(pet) {
   AppState.mapMarkers.push(marker);
 }
 
-function centerMapOnUser() {
+window.centerMapOnUser = function() {
   if (AppState.mapInstance) {
     AppState.mapInstance.flyTo([-33.1232, -64.3493], 16, { animate: true, duration: 1.2 });
     showToast('Ubicación centrada en Plaza Roca, Río Cuarto.', 'info');
   }
-}
+};
 
 // ==========================================
 // SECCIÓN: ADOPCIONES RESPONSABLES
@@ -1411,12 +1380,12 @@ function renderAdoptions() {
   }).join('');
 }
 
-function handleApplyAdoption(petId) {
+window.handleApplyAdoption = function(petId) {
   const pet = AppState.pets.find(p => p.id === petId);
   requireAuth(() => {
     openAdoptionFormModal(pet);
   }, `Para postularte como adoptante de ${pet ? pet.name : 'la mascota'}, por favor iniciá sesión.`);
-}
+};
 
 function openAdoptionFormModal(pet) {
   const modal = document.getElementById('adoptionFormModal');
@@ -1428,19 +1397,19 @@ function openAdoptionFormModal(pet) {
   }
 }
 
-function closeAdoptionFormModal() {
+window.closeAdoptionFormModal = function() {
   const modal = document.getElementById('adoptionFormModal');
   if (modal) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
-}
+};
 
-function submitAdoptionApplication(e) {
+window.submitAdoptionApplication = function(e) {
   e.preventDefault();
   closeAdoptionFormModal();
   showToast('¡Tu postulación ha sido enviada al rescatista! Te contactarán por WhatsApp.', 'success');
-}
+};
 
 // ==========================================
 // SECCIÓN: MARKETPLACE (PRODUCTOS Y SERVICIOS)
@@ -1451,7 +1420,7 @@ function renderMarketplace() {
   updateCartBadge();
 }
 
-function switchMarketplaceTab(tab) {
+window.switchMarketplaceTab = function(tab) {
   const tabProd = document.getElementById('marketTabProducts');
   const tabServ = document.getElementById('marketTabServices');
   const viewProd = document.getElementById('marketViewProducts');
@@ -1468,7 +1437,7 @@ function switchMarketplaceTab(tab) {
     if (viewServ) viewServ.classList.remove('hidden');
     if (viewProd) viewProd.classList.add('hidden');
   }
-}
+};
 
 function renderProducts() {
   const container = document.getElementById('marketplaceProductsContainer');
@@ -1549,7 +1518,7 @@ function renderServices() {
   `).join('');
 }
 
-function addToCart(productId) {
+window.addToCart = function(productId) {
   const prod = AppState.products.find(p => p.id === productId);
   if (!prod) return;
 
@@ -1563,7 +1532,7 @@ function addToCart(productId) {
   saveToStorage();
   updateCartBadge();
   showToast(`"${prod.title.slice(0, 24)}..." añadido al carrito.`, 'success');
-}
+};
 
 function updateCartBadge() {
   const count = AppState.cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -1574,22 +1543,22 @@ function updateCartBadge() {
   }
 }
 
-function openCartModal() {
+window.openCartModal = function() {
   const modal = document.getElementById('cartModal');
   renderCartItems();
   if (modal) {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
   }
-}
+};
 
-function closeCartModal() {
+window.closeCartModal = function() {
   const modal = document.getElementById('cartModal');
   if (modal) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
-}
+};
 
 function renderCartItems() {
   const container = document.getElementById('cartItemsContainer');
@@ -1642,7 +1611,7 @@ function renderCartItems() {
   if (totalEl) totalEl.textContent = `$${total.toLocaleString('es-AR')}`;
 }
 
-function changeCartQty(productId, delta) {
+window.changeCartQty = function(productId, delta) {
   const item = AppState.cart.find(i => i.productId === productId);
   if (!item) return;
   item.quantity += delta;
@@ -1652,16 +1621,16 @@ function changeCartQty(productId, delta) {
   saveToStorage();
   renderCartItems();
   updateCartBadge();
-}
+};
 
-function removeCartItem(productId) {
+window.removeCartItem = function(productId) {
   AppState.cart = AppState.cart.filter(i => i.productId !== productId);
   saveToStorage();
   renderCartItems();
   updateCartBadge();
-}
+};
 
-function startCheckout() {
+window.startCheckout = function() {
   if (AppState.cart.length === 0) {
     showToast('Añadí al menos un producto al carrito para comprar.', 'info');
     return;
@@ -1675,17 +1644,17 @@ function startCheckout() {
       checkoutModal.classList.add('flex');
     }
   }, 'Para confirmar el envío a tu domicilio en Río Cuarto y método de pago, por favor iniciá sesión.');
-}
+};
 
-function closeCheckoutModal() {
+window.closeCheckoutModal = function() {
   const modal = document.getElementById('checkoutModal');
   if (modal) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
-}
+};
 
-function submitCheckoutOrder(e) {
+window.submitCheckoutOrder = function(e) {
   e.preventDefault();
   closeCheckoutModal();
 
@@ -1699,19 +1668,18 @@ function submitCheckoutOrder(e) {
     successModal.classList.remove('hidden');
     successModal.classList.add('flex');
   }
-}
+};
 
-function closeOrderSuccessModal() {
+window.closeOrderSuccessModal = function() {
   const modal = document.getElementById('orderSuccessModal');
   if (modal) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
   navigateTo('marketplace');
-}
+};
 
-// Reservas de turnos de servicios
-function openBookingServiceModal(serviceId) {
+window.openBookingServiceModal = function(serviceId) {
   const serv = AppState.services.find(s => s.id === serviceId);
   if (!serv) return;
 
@@ -1736,21 +1704,21 @@ function openBookingServiceModal(serviceId) {
       modal.classList.add('flex');
     }
   }, `Para reservar un turno en ${serv.title}, por favor iniciá sesión.`);
-}
+};
 
-function closeBookingModal() {
+window.closeBookingModal = function() {
   const modal = document.getElementById('serviceBookingModal');
   if (modal) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
-}
+};
 
-function confirmServiceBooking(e) {
+window.confirmServiceBooking = function(e) {
   e.preventDefault();
   closeBookingModal();
   showToast('¡Turno reservado con éxito! Recibirás los detalles por WhatsApp.', 'success');
-}
+};
 
 // ==========================================
 // SECCIÓN: PERFIL Y CONFIGURACIÓN DE ROLES
@@ -1773,7 +1741,6 @@ function renderProfile() {
   const isProvider = AppState.userRole === 'proveedor';
 
   container.innerHTML = `
-    <!-- Cabecera de Usuario -->
     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-6">
       <div class="relative w-24 h-24 rounded-3xl bg-amber-50 border-2 border-brand-500/30 overflow-hidden shadow-inner flex items-center justify-center shrink-0">
         <img src="${user.avatar || 'assets/logo.png'}" class="w-full h-full object-cover">
@@ -1791,7 +1758,6 @@ function renderProfile() {
           </span>
         </div>
 
-        <!-- Switch de Roles -->
         <div class="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div class="text-center sm:text-left">
             <span class="text-xs font-heading font-bold text-slate-800 block">Conmutador de Rol Operativo</span>
@@ -1811,10 +1777,8 @@ function renderProfile() {
       </div>
     </div>
 
-    <!-- Contenido Dinámico según Rol -->
     ${isProvider ? renderProviderDashboard() : renderNeighborDashboard()}
 
-    <!-- Botones de Sesión -->
     <div class="pt-4 text-center">
       ${isLogged ? `
         <button onclick="logout()" class="px-6 py-3 rounded-2xl bg-white hover:bg-red-50 text-slate-600 hover:text-red-600 text-xs font-heading font-semibold border border-slate-200 transition flex items-center gap-2 mx-auto shadow-xs">
@@ -1829,7 +1793,7 @@ function renderProfile() {
   `;
 }
 
-function toggleUserRole(checked) {
+window.toggleUserRole = function(checked) {
   AppState.userRole = checked ? 'proveedor' : 'vecino';
   if (AppState.currentUser) {
     AppState.currentUser.role = AppState.userRole;
@@ -1837,7 +1801,7 @@ function toggleUserRole(checked) {
   }
   showToast(`Cambiado a ${AppState.userRole === 'proveedor' ? 'Modo Rescatista / Clínica' : 'Modo Vecino'}.`, 'info');
   renderProfile();
-}
+};
 
 function renderNeighborDashboard() {
   const myReports = AppState.pets.filter(p => p.id === 'milo');
@@ -1938,7 +1902,7 @@ function renderProviderDashboard() {
   `;
 }
 
-function markPetFound(petId) {
+window.markPetFound = function(petId) {
   const pet = AppState.pets.find(p => p.id === petId);
   if (!pet) return;
 
@@ -1947,16 +1911,16 @@ function markPetFound(petId) {
   saveToStorage();
   showToast(`¡Qué hermosa noticia! ${pet.name} fue marcado como reencontrado con su familia.`, 'success');
   renderProfile();
-}
+};
 
-function broadcastEmergencyAlert() {
+window.broadcastEmergencyAlert = function() {
   showToast('Alerta de emergencia emitida a los vecinos de Río Cuarto.', 'success');
-}
+};
 
 // ==========================================
 // SECCIÓN: GUARDADOS / FAVORITOS
 // ==========================================
-function toggleFavorite(id) {
+window.toggleFavorite = function(id) {
   const index = AppState.favorites.indexOf(id);
   if (index > -1) {
     AppState.favorites.splice(index, 1);
@@ -1966,7 +1930,7 @@ function toggleFavorite(id) {
     showToast('Añadido a tus guardados.', 'success');
   }
   saveToStorage();
-}
+};
 
 function renderFavorites() {
   const container = document.getElementById('favoritesListContainer');
@@ -2007,7 +1971,7 @@ function renderFavorites() {
 // ==========================================
 // TOAST NOTIFICATIONS Y AUXILIARES
 // ==========================================
-function showToast(message, type = 'info') {
+window.showToast = function(message, type = 'info') {
   const toast = document.getElementById('toastNotification');
   const toastMsg = document.getElementById('toastMessage');
   const toastIcon = document.getElementById('toastIcon');
@@ -2030,9 +1994,9 @@ function showToast(message, type = 'info') {
     toast.classList.add('translate-y-10', 'opacity-0');
     setTimeout(() => toast.classList.add('hidden'), 300);
   }, 3500);
-}
+};
 
-function sharePetDetail(petId) {
+window.sharePetDetail = function(petId) {
   const url = window.location.href;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url);
@@ -2040,23 +2004,23 @@ function sharePetDetail(petId) {
   } else {
     showToast('Copiá el enlace desde tu navegador para compartir.', 'info');
   }
-}
+};
 
-function openNotificationsModal() {
+window.openNotificationsModal = function() {
   const modal = document.getElementById('notificationsModal');
   if (modal) {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
   }
-}
+};
 
-function closeNotificationsModal() {
+window.closeNotificationsModal = function() {
   const modal = document.getElementById('notificationsModal');
   if (modal) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
-}
+};
 
 // ==========================================
 // EVENT LISTENERS GLOBALES
@@ -2089,7 +2053,6 @@ function setupEventListeners() {
     serviceBookingForm.addEventListener('submit', confirmServiceBooking);
   }
 
-  // Cerrar modales con clic fuera de la tarjeta
   window.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-container')) {
       e.target.classList.add('hidden');

@@ -291,22 +291,21 @@
       <!-- 4 Pilares / Accesos Directos -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         
-        <!-- Pilar 1: Perdidos -->
-        <div onclick="setCategoryFilter('lost')" class="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-xs cursor-pointer group flex flex-col justify-between hover:border-red-300 transition">
-          <div>
-            <div class="flex items-center justify-between">
-              <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-500 border border-red-100 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
-                🚨
-              </div>
-              <button onclick="event.stopPropagation(); handleGeneralPublish('lost')" class="text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg border border-red-200 transition">
-                + Publicar
-              </button>
-            </div>
-            <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base mt-3">Mascotas Perdidas</h3>
-            <span class="text-xs text-red-600 font-semibold block mt-0.5">Ver alertas activas</span>
-          </div>
-        </div>
-
+       <!-- Pilar 1: Perdidos (Destacado con fondo y bordes en tonos rojos de alerta) -->
+<div onclick="setCategoryFilter('lost')" class="p-5 rounded-3xl bg-red-50/80 border-2 border-red-200 shadow-xs cursor-pointer group flex flex-col justify-between hover:border-red-400 hover:bg-red-50 transition">
+  <div>
+    <div class="flex items-center justify-between">
+      <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 border border-red-200 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition-transform">
+        🚨
+      </div>
+      <button onclick="event.stopPropagation(); handleGeneralPublish('lost')" class="text-[11px] font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-xl shadow-sm transition">
+        + Publicar
+      </button>
+    </div>
+    <h3 class="font-heading font-bold text-slate-900 text-sm sm:text-base mt-3">Mascotas Perdidas</h3>
+    <span class="text-xs text-red-700 font-semibold block mt-0.5">Ver alertas activas</span>
+  </div>
+</div>
         <!-- Pilar 2: Encontrados -->
         <div onclick="setCategoryFilter('found')" class="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-xs cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/20 transition group flex flex-col justify-between">
           <div>
@@ -725,38 +724,49 @@
   </div>
 
   <!-- 3. MODAL DE REPORTE -->
+  <!-- MODAL DE FORMULARIO DE REPORTE / PUBLICACIÓN MEJORADO -->
   <div id="reportModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-8">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 my-8 animate-modal-enter">
       <div class="flex items-center justify-between">
-        <h3 class="font-heading font-bold text-lg text-slate-900">Crear Publicación</h3>
-        <button onclick="closeReportModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center font-bold">
+            📢
+          </div>
+          <h3 class="font-heading font-bold text-lg text-slate-900">Crear Publicación y Ficha Técnica</h3>
+        </div>
+        <button onclick="closeReportModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <form id="reportForm" class="space-y-4 text-xs">
+
+      <form id="reportForm" class="space-y-3.5 text-xs">
         <div>
-          <label class="font-semibold text-slate-700 block mb-1">Sección *</label>
+          <label class="font-semibold text-slate-700 block mb-1">Sección de Destino *</label>
           <select id="reportPetType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold">
-            <option value="lost">🚨 Mascota Perdida</option>
-            <option value="found">🐾 Mascota Encontrada</option>
-            <option value="adoption">💛 En Adopción</option>
+            <option value="lost">🚨 Mascota Perdida (Alerta barrial)</option>
+            <option value="found">🐾 Mascota Encontrada (En tránsito)</option>
+            <option value="adoption">💛 En Adopción Responsable</option>
           </select>
         </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="font-semibold text-slate-700 block mb-1">Nombre *</label>
-            <input type="text" id="reportPetName" required placeholder="Ej. Milo" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+            <label class="font-semibold text-slate-700 block mb-1">Nombre o Apodo *</label>
+            <input type="text" id="reportPetName" required placeholder="Ej. Mancha" class="w-full px-3 py-2.5 rounded-xl border border-slate-200">
           </div>
           <div>
             <label class="font-semibold text-slate-700 block mb-1">Especie *</label>
-            <select id="reportPetSpecies" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
+            <select id="reportPetSpecies" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white">
               <option value="perro">Perro</option>
               <option value="gato">Gato</option>
               <option value="otro">Otro</option>
             </select>
           </div>
         </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="font-semibold text-slate-700 block mb-1">Zona Río Cuarto *</label>
+            <label class="font-semibold text-slate-700 block mb-1">Zona de Río Cuarto *</label>
             <select id="reportPetZone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold">
               <option value="Centro">Centro</option>
               <option value="Banda Norte">Banda Norte</option>
@@ -766,25 +776,97 @@
             </select>
           </div>
           <div>
-            <label class="font-semibold text-slate-700 block mb-1">Raza/Color *</label>
-            <input type="text" id="reportPetBreed" required placeholder="Ej. Atigrado" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+            <label class="font-semibold text-slate-700 block mb-1">Raza y Características (Opcional)</label>
+            <input type="text" id="reportPetBreed" placeholder="Ej. Mestizo negro" class="w-full px-3 py-2.5 rounded-xl border border-slate-200">
           </div>
         </div>
+
+        <!-- SECCIÓN DE SUBIDA DE FOTO -->
         <div>
-          <label class="font-semibold text-slate-700 block mb-1">Descripción *</label>
-          <textarea id="reportPetDesc" rows="2" required placeholder="Detalles de avistamiento..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200"></textarea>
+          <label class="font-semibold text-slate-700 block mb-1">Fotografía de la Mascota *</label>
+          <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-300 border-dashed rounded-2xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition overflow-hidden relative">
+            <div id="reportUploadPlaceholder" class="flex flex-col items-center justify-center pt-3 pb-3 text-slate-500">
+              <i class="fa-solid fa-cloud-arrow-up text-xl mb-1 text-brand-500"></i>
+              <p class="text-[11px] font-semibold">Hacé clic para subir o arrastrá la foto</p>
+              <p class="text-[10px] text-slate-400">PNG, JPG (Máx. 5MB)</p>
+            </div>
+            <img id="reportPreviewImg" class="hidden absolute inset-0 w-full h-full object-cover">
+            <input type="file" id="reportPetImageFile" accept="image/*" class="hidden" onchange="previewReportImage(event)">
+          </label>
         </div>
+
+        <!-- Ficha Técnica Completa (Campos flexibles) -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <span class="font-heading font-bold text-slate-800 text-xs block border-b border-slate-200 pb-1.5">📋 Ficha Técnica Opcional</span>
+          
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 block mb-1">Sexo</label>
+              <select id="reportDetailSexo" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+                <option value="Desconocido">No sé</option>
+                <option value="Macho">Macho</option>
+                <option value="Hembra">Hembra</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 block mb-1">Edad Estimada</label>
+              <input type="text" id="reportDetailEdad" placeholder="Ej. Adulto / 5 años" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 block mb-1">Tamaño</label>
+              <select id="reportDetailTamano" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+                <option value="Mediano">Mediano</option>
+                <option value="Chico">Chico</option>
+                <option value="Grande">Grande</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 block mb-1">Collar (Opcional)</label>
+              <input type="text" id="reportDetailCollar" placeholder="Ej. Sin collar" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 block mb-1">Castrado/a</label>
+              <select id="reportDetailCastrado" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+                <option value="Desconocido">No sé</option>
+                <option value="Sí">Sí</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-600 block mb-1">Microchip</label>
+              <select id="reportDetailChip" class="w-full px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+                <option value="No">No</option>
+                <option value="Sí">Sí</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Recompensa (Opcional)</label>
+            <input type="text" id="reportPetReward" placeholder="Ej. $30.000" class="w-full px-3 py-2.5 rounded-xl border border-slate-200">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Teléfono WhatsApp *</label>
+            <input type="tel" id="reportPetPhone" required placeholder="358418813" class="w-full px-3 py-2.5 rounded-xl border border-slate-200">
+          </div>
+        </div>
+
         <div>
-          <label class="font-semibold text-slate-700 block mb-1">Teléfono WhatsApp *</label>
-          <input type="tel" id="reportPetPhone" required placeholder="3584123456" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+          <label class="font-semibold text-slate-700 block mb-1">Descripción y Señas Particulares (Opcional)</label>
+          <textarea id="reportPetDesc" rows="2" placeholder="Detalles de avistamiento o comportamiento..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200"></textarea>
         </div>
-        <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">
-          Publicar Alerta Inmediata
+
+        <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-xl shadow-lg transition">
+          🚀 Publicar Alerta Inmediata
         </button>
       </form>
     </div>
   </div>
-
   <!-- 4. MODAL CARRITO -->
   <div id="cartModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
