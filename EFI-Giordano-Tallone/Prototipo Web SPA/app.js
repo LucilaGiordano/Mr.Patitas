@@ -417,6 +417,7 @@ window.previewReportImage = function(event) {
 // ==========================================
 function initApp() {
   loadFromStorage();
+  initTheme();
   setupEventListeners();
   renderApp();
   initMap();
@@ -2052,6 +2053,11 @@ function setupEventListeners() {
     serviceBookingForm.addEventListener('submit', confirmServiceBooking);
   }
 
+  const darkModeBtn = document.getElementById('darkModeBtn');
+   if (darkModeBtn) {
+    darkModeBtn.addEventListener('click', toggleDarkMode);
+  }
+
   window.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-container')) {
       e.target.classList.add('hidden');
@@ -2065,5 +2071,37 @@ function renderApp() {
   renderPetCards();
   updateCartBadge();
 }
+// ==========================================
+// MODO OSCURO / MODO CLARO (NATIVO TAILWIND)
+// ==========================================
+window.toggleDarkMode = function() {
+  const htmlEl = document.documentElement;
+  const iconEl = document.getElementById('darkModeIcon');
+  
+  if (htmlEl.classList.contains('dark')) {
+    htmlEl.classList.remove('dark');
+    localStorage.setItem('mrpatitas_theme', 'light');
+    if (iconEl) iconEl.className = 'fa-solid fa-moon text-sm';
+  } else {
+    htmlEl.classList.add('dark');
+    localStorage.setItem('mrpatitas_theme', 'dark');
+    if (iconEl) iconEl.className = 'fa-solid fa-sun text-sm text-amber-400';
+  }
+};
+
+function initTheme() {
+  const savedTheme = localStorage.getItem('mrpatitas_theme');
+  const iconEl = document.getElementById('darkModeIcon');
+  
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+    if (iconEl) iconEl.className = 'fa-solid fa-sun text-sm text-amber-400';
+  } else {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('mrpatitas_theme', 'light');
+    if (iconEl) iconEl.className = 'fa-solid fa-moon text-sm';
+  }
+}
+// Llamá a initTheme() dentro de tu función initApp() principal
 
 document.addEventListener('DOMContentLoaded', initApp);

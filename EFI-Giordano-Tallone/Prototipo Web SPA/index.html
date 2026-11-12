@@ -19,6 +19,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -188,6 +189,11 @@
           <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-[10px] text-slate-400 pointer-events-none"></i>
         </div>
 
+        <!-- Botón de Modo Oscuro / Claro -->
+        <button id="darkModeBtn" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shadow-xs" title="Cambiar modo oscuro / claro">
+          <i id="darkModeIcon" class="fa-solid fa-moon text-sm"></i>
+        </button>
+
         <!-- Botón Notificaciones -->
         <button onclick="openNotificationsModal()" class="relative w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition" title="Alertas barriales">
           <i class="fa-regular fa-bell text-sm"></i>
@@ -291,7 +297,7 @@
       <!-- 4 Pilares / Accesos Directos -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         
-       <!-- Pilar 1: Perdidos (Destacado con fondo y bordes en tonos rojos de alerta) -->
+       <!-- Pilar 1: Perdidos -->
        <div onclick="setCategoryFilter('lost')" class="p-5 rounded-3xl bg-red-50/80 border-2 border-red-200 shadow-xs cursor-pointer group flex flex-col justify-between hover:border-red-400 hover:bg-red-50 transition">
          <div>
            <div class="flex items-center justify-between">
