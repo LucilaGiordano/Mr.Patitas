@@ -1222,11 +1222,10 @@ function initMap() {
 
   AppState.mapInstance = L.map('leafletMapContainer').setView([-33.1232, -64.3493], 14);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '© OpenStreetMap contributors | Mr. Patitas Río Cuarto'
+    attribution: '&copy; OpenStreetMap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Mr. Patitas'
   }).addTo(AppState.mapInstance);
-
   refreshMapMarkers('all');
 }
 
