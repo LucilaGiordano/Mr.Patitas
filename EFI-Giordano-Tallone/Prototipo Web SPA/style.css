@@ -219,24 +219,168 @@ html.dark body {
   background-color: #0B132B !important;
   color: #F8FAFC !important;
 }
+
 html.dark #appTopBar,
 html.dark #appBottomNav,
 html.dark footer {
   background-color: rgba(15, 23, 42, 0.95) !important;
   border-color: #1E293B !important;
 }
+
+/* Fondos blancos, grises claros y tarjetas */
 html.dark .bg-white,
-html.dark .spa-view .bg-white {
+html.dark .spa-view .bg-white,
+html.dark .bg-slate-50,
+html.dark .bg-slate-100,
+html.dark .bg-gray-50,
+html.dark .bg-gray-100 {
   background-color: #1E293B !important;
   color: #F8FAFC !important;
   border-color: #334155 !important;
 }
+
+/* Fondos con colores pastel o degradados (Banner principal y tarjeta Perdidas) */
+html.dark .bg-orange-50,
+html.dark .bg-amber-50,
+html.dark .bg-red-50,
+html.dark [class*="from-orange-"],
+html.dark [class*="from-amber-"],
+html.dark [class*="from-red-"],
+html.dark .quick-access-lost {
+  background-image: none !important;
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+/* Hover de la tarjeta de Mascotas Perdidas en modo oscuro */
+html.dark .quick-access-lost:hover {
+  background-color: #283548 !important;
+  border-color: #EF4444 !important;
+}
+
+/* Inputs y selectores (como el selector de barrio "Centro" en el header) */
+html.dark select,
+html.dark input {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+
+/* Textos */
 html.dark .text-slate-900,
 html.dark .text-slate-800,
-html.dark .text-slate-700 {
+html.dark .text-slate-700,
+html.dark .text-gray-900,
+html.dark .text-gray-800 {
   color: #F8FAFC !important;
 }
+
 html.dark .text-slate-500,
-html.dark .text-slate-600 {
+html.dark .text-slate-600,
+html.dark .text-gray-500,
+html.dark .text-gray-600 {
   color: #94A3B8 !important;
+}
+
+/* Tarjeta destacada de Mascotas Perdidas en Modo Oscuro */
+html.dark .quick-access-lost,
+html.dark [class*="bg-rose-50"],
+html.dark [class*="bg-red-50"] {
+  background: linear-gradient(135deg, #3B1822 0%, #1E293B 100%) !important;
+  border: 1.5px solid #EF4444 !important;
+  box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Efecto al pasar el mouse en Modo Oscuro */
+html.dark .quick-access-lost:hover {
+  background: linear-gradient(135deg, #4C1D2A 0%, #263349 100%) !important;
+  border-color: #F87171 !important;
+  box-shadow: 0 10px 25px -4px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Asegurar que el subtítulo "Ver alertas activas" se lea nítido */
+html.dark .quick-access-lost .text-red-600,
+html.dark .quick-access-lost .text-rose-600 {
+  color: #FCA5A5 !important;
+}
+
+/* Bloquear cualquier desbordamiento horizontal en la página */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+/* Cajas pastel con opacidad (ej. bg-amber-50/50, bg-orange-50/40) en vistas de detalle e historial */
+html.dark [class*="bg-amber-50"],
+html.dark [class*="bg-orange-50"],
+html.dark [class*="bg-yellow-50"],
+html.dark [class*="bg-stone-50"],
+html.dark [class*="bg-neutral-50"],
+html.dark [class*="bg-zinc-50"] {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+@media (max-width: 640px) {
+  #appTopBar,
+  main,
+  section {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Ajustar barra superior para que no empuje hacia afuera */
+  #appTopBar > div {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    gap: 0.25rem !important;
+  }
+
+  #appTopBar select {
+    max-width: 78px !important;
+    padding: 0.25rem 1rem 0.25rem 0.4rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  #appTopBar button,
+  #appTopBar [id*="profile"],
+  #appTopBar [id*="Profile"] {
+    padding: 0.3rem !important;
+    min-width: auto !important;
+  }
+
+  /* Ocultar subtítulo del logo, nombre al lado del avatar y botón "+ Publicar" del header */
+  #appTopBar p,
+  #appTopBar button:has(.fa-plus),
+  #appTopBar [id*="publish"],
+  #appTopBar [id*="Publish"],
+  #appTopBar [id*="profile"] span,
+  #appTopBar [id*="Profile"] span {
+    display: none !important;
+  }
+
+  /* Evitar que la fila de filtros (Todos, Perdidos, Encontrados...) ensanche la página */
+  .pill-lost-alert {
+    flex-shrink: 0;
+  }
+  div:has(> .pill-lost-alert) {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: 0.25rem;
+  }
+
+  /* Ajustar grillas de 3 columnas (estadísticas de perfil) */
+  .grid-cols-3 {
+    gap: 0.4rem !important;
+  }
+  .grid-cols-3 > div {
+    padding: 0.65rem 0.2rem !important;
+  }
+  .grid-cols-3 p,
+  .grid-cols-3 span {
+    font-size: 0.7rem !important;
+  }
 }

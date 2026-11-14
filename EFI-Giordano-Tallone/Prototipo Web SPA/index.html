@@ -76,7 +76,7 @@
       <!-- Isotipo Oficial con Paw Badge -->
       <div class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-6">
         <div class="w-full h-full rounded-3xl bg-white shadow-2xl shadow-brand-500/20 p-4 flex items-center justify-center border-4 border-brand-500/20 transform hover:scale-105 transition-transform duration-300">
-          <img src="assets/logo.png" alt="Isotipo Mr. Patitas" class="w-full h-full object-contain">
+          <img src="assets/Isotipo2.png" alt="Isotipo Mr. Patitas" class="w-full h-full object-contain">
         </div>
         <div class="absolute -bottom-2 -right-2 bg-brand-500 text-white rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shadow-lg text-base">
           🐾
@@ -142,7 +142,7 @@
       <!-- Logotipo + Nombre de Marca Oficial -->
       <div onclick="navigateTo('home')" class="flex items-center gap-3 cursor-pointer group shrink-0">
         <div class="w-10 h-10 rounded-2xl bg-brand-50 border border-brand-200 p-1.5 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-          <img src="assets/logo.png" alt="Mr. Patitas" class="w-full h-full object-contain">
+          <img src="assets/Isotipo2.png" alt="Mr. Patitas" class="w-full h-full object-contain">
         </div>
         <div>
           <span class="font-heading font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight leading-none block">
@@ -490,7 +490,7 @@
     </section>
 
     <!-- ====================================================== -->
-    <!-- VISTA 6: PERFIL Y SWITCH DE ROLES                      -->
+    <!-- VISTA 6: PERFIL Y PANELES POR ROL                      -->
     <!-- ====================================================== -->
     <section id="view-profile" class="spa-view space-y-6">
       <div id="profileContentContainer"></div>
@@ -577,7 +577,7 @@
   <!-- MODALES DEL SISTEMA                                      -->
   <!-- ======================================================== -->
 
-  <!-- 1. MODAL DE AUTENTICACIÓN (LOGIN & REGISTRO) -->
+  <!-- 1. MODAL DE AUTENTICACIÓN (LOGIN & REGISTRO 3 ROLES) -->
   <div id="authModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 my-8">
       <div class="flex items-center justify-between">
@@ -629,25 +629,57 @@
         </form>
 
         <div class="pt-2 border-t border-slate-100 space-y-2">
-          <span class="text-[11px] text-slate-400 font-medium block">⚡ Atajos para evaluación rápida:</span>
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" onclick="fillDemoCredentials('vecino')" class="py-1.5 px-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold text-left transition">
-              👤 Cuenta Vecino
+          <span class="text-[11px] text-slate-400 font-medium block">⚡ Atajos para evaluación rápida (3 roles):</span>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="fillDemoCredentials('vecino')" class="py-1.5 px-2 bg-slate-50 hover:bg-brand-50 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold text-center transition">
+              🏡 Vecino
             </button>
-            <button type="button" onclick="fillDemoCredentials('proveedor')" class="py-1.5 px-2.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 rounded-lg text-[11px] font-semibold text-left transition">
-              🏥 Cuenta Veterinaria
+            <button type="button" onclick="fillDemoCredentials('proveedor')" class="py-1.5 px-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg text-[11px] font-semibold text-center transition">
+              🏪 Proveedor
+            </button>
+            <button type="button" onclick="fillDemoCredentials('veterinario')" class="py-1.5 px-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 rounded-lg text-[11px] font-semibold text-center transition">
+              🩺 Veterinario
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Register Form -->
+      <!-- Register Form (3 Roles + Campos Extendidos) -->
       <div id="modalSubViewRegister" class="hidden space-y-4">
         <form id="modalRegisterForm" onsubmit="handleModalRegister(event)" class="space-y-3 text-xs">
+          
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1.5">Tipo de Perfil *</label>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="regRole" value="vecino" checked onchange="toggleRegExtraFields('vecino')" class="peer hidden">
+                <div class="p-2.5 rounded-xl border border-slate-200 text-center peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition">
+                  <span class="block text-base">🏡</span>
+                  <span class="font-bold block text-[11px]">Vecino</span>
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="regRole" value="proveedor" onchange="toggleRegExtraFields('proveedor')" class="peer hidden">
+                <div class="p-2.5 rounded-xl border border-slate-200 text-center peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition">
+                  <span class="block text-base">🏪</span>
+                  <span class="font-bold block text-[11px]">Proveedor</span>
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="regRole" value="veterinario" onchange="toggleRegExtraFields('veterinario')" class="peer hidden">
+                <div class="p-2.5 rounded-xl border border-slate-200 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-600 transition">
+                  <span class="block text-base">🩺</span>
+                  <span class="font-bold block text-[11px]">Veterinario</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <div>
             <label class="font-semibold text-slate-700 block mb-1">Nombre Completo *</label>
             <input type="text" id="regName" required placeholder="Ej. Lucila Tallone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
           </div>
+
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="font-semibold text-slate-700 block mb-1">Correo *</label>
@@ -658,6 +690,7 @@
               <input type="tel" id="regPhone" required placeholder="3584123456" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
             </div>
           </div>
+
           <div>
             <label class="font-semibold text-slate-700 block mb-1">Barrio *</label>
             <select id="regBarrio" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
@@ -668,6 +701,23 @@
               <option value="Sur">Sur / Bimaco</option>
             </select>
           </div>
+
+          <!-- Campos extra para Proveedor y Veterinario -->
+          <div id="dynamicRoleFieldsWrapper" class="hidden space-y-2 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+            <p id="extraFieldsTitle" class="text-[11px] font-heading font-bold text-slate-700">Datos Comerciales</p>
+            <input type="text" id="regBusinessName" placeholder="Nombre del Comercio o Clínica Veterinaria *" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+            <div class="grid grid-cols-2 gap-2">
+              <input type="text" id="regCuit" placeholder="CUIT / CUIL *" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+              <input type="text" id="regAddress" placeholder="Dirección en Río Cuarto *" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+            </div>
+            <div id="vetMatriculaWrapper" class="hidden space-y-1.5">
+              <input type="text" id="regMatricula" placeholder="N° de Matrícula Profesional Veterinaria *" class="w-full px-3 py-2 rounded-xl border border-purple-200 text-xs bg-white">
+              <p class="text-[10px] text-purple-700 bg-purple-50 px-2.5 py-1.5 rounded-lg border border-purple-100">
+                🔒 Por seguridad comunitaria, tu solicitud será verificada por el equipo de Mr. Patitas antes de habilitar Servicios y Turnos.
+              </p>
+            </div>
+          </div>
+
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="font-semibold text-slate-700 block mb-1">Contraseña *</label>
@@ -678,23 +728,7 @@
               <input type="password" id="regPasswordConfirm" required placeholder="Repetir" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
             </div>
           </div>
-          <div>
-            <label class="font-semibold text-slate-700 block mb-1">Tipo de Perfil</label>
-            <div class="grid grid-cols-2 gap-2">
-              <label class="cursor-pointer">
-                <input type="radio" name="regRole" value="vecino" checked class="peer hidden">
-                <div class="p-2.5 rounded-xl border border-slate-200 text-center peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600">
-                  <span class="font-bold block text-xs">Vecino</span>
-                </div>
-              </label>
-              <label class="cursor-pointer">
-                <input type="radio" name="regRole" value="proveedor" class="peer hidden">
-                <div class="p-2.5 rounded-xl border border-slate-200 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-600">
-                  <span class="font-bold block text-xs">Veterinaria</span>
-                </div>
-              </label>
-            </div>
-          </div>
+
           <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">
             Crear Cuenta e Ingresar
           </button>
@@ -773,7 +807,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="font-semibold text-slate-700 block mb-1">Zona de Río Cuarto *</label>
-            <select id="reportPetZone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold">
+            <select id="reportPetZone" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold">
               <option value="Centro">Centro</option>
               <option value="Banda Norte">Banda Norte</option>
               <option value="Alberdi">Alberdi</option>
@@ -924,6 +958,7 @@
         <i class="fa-solid fa-circle-check"></i>
       </div>
       <h3 class="font-heading font-extrabold text-xl text-slate-900">¡Pedido Confirmado!</h3>
+      <p class="text-xs text-slate-500">Código: <strong id="orderIdSpan" class="text-slate-800"></strong></p>
       <button onclick="closeOrderSuccessModal()" class="w-full py-3 bg-slate-900 text-white font-heading font-bold text-xs rounded-xl transition">Volver a la Tienda</button>
     </div>
   </div>

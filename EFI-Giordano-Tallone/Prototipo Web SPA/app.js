@@ -8,8 +8,8 @@
 
 // Estado Global de la Aplicación
 const AppState = {
-  currentUser: null, // { name, email, phone, barrio, role, isLogged, avatar }
-  userRole: 'vecino', // 'vecino' | 'proveedor'
+  currentUser: null, // { name, email, phone, barrio, role, accountRole, status, disabled, isLogged, avatar }
+  userRole: 'vecino', // 'vecino' | 'proveedor' | 'veterinario'
   activeView: 'welcome',
   selectedZone: 'Todas',
   selectedCategory: 'all',
@@ -29,17 +29,44 @@ const AppState = {
       phone: '+54 9 358 432-8891',
       barrio: 'Centro',
       role: 'vecino',
+      accountRole: 'vecino',
+      status: 'approved',
+      disabled: false,
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
       activeReports: 1,
       rescuedCount: 2
     },
     {
+      email: 'proveedor@mrpatitas.com',
+      password: 'password123',
+      name: 'PetShop Banda Norte',
+      businessName: 'PetShop Banda Norte SRL',
+      cuit: '30-71234567-9',
+      address: 'Marcelo T. de Alvear 620',
+      phone: '+54 9 358 411-2233',
+      barrio: 'Banda Norte',
+      role: 'proveedor',
+      accountRole: 'proveedor',
+      status: 'approved',
+      disabled: false,
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+      activeReports: 0,
+      rescuedCount: 0
+    },
+    {
       email: 'veterinaria@mrpatitas.com',
       password: 'password123',
       name: 'Dr. Carlos Giordano',
+      businessName: 'Clínica Veterinaria Río Pet',
+      matricula: 'MP-4582 Córdoba',
+      cuit: '20-33445566-7',
+      address: 'San Martín 450, Centro',
       phone: '+54 9 358 514-9922',
       barrio: 'Macrocentro',
-      role: 'proveedor',
+      role: 'veterinario',
+      accountRole: 'veterinario',
+      status: 'approved',
+      disabled: false,
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       activeReports: 3,
       rescuedCount: 48
@@ -364,6 +391,15 @@ const AppState = {
 };
 
 // ==========================================
+// HELPERS DE USUARIOS DESHABILITADOS
+// ==========================================
+function isUserDisabledByEmail(email) {
+  if (!email) return false;
+  const user = AppState.usersDb.find(u => u.email.toLowerCase() === email.toLowerCase());
+  return Boolean(user && user.disabled);
+}
+
+// ==========================================
 // FUNCIONES GLOBALES DE MODALES Y UI
 // ==========================================
 window.openReportPetModal = function(defaultType = 'lost') {
@@ -449,6 +485,16 @@ function loadFromStorage() {
       AppState.pets = JSON.parse(savedPets);
     }
 
+    const savedProducts = localStorage.getItem('mrpatitas_products');
+    if (savedProducts) {
+      AppState.products = JSON.parse(savedProducts);
+    }
+
+    const savedServices = localStorage.getItem('mrpatitas_services');
+    if (savedServices) {
+      AppState.services = JSON.parse(savedServices);
+    }
+
     const savedCart = localStorage.getItem('mrpatitas_cart');
     if (savedCart) {
       AppState.cart = JSON.parse(savedCart);
@@ -472,6 +518,8 @@ function saveToStorage() {
       localStorage.removeItem('mrpatitas_user');
     }
     localStorage.setItem('mrpatitas_pets', JSON.stringify(AppState.pets));
+    localStorage.setItem('mrpatitas_products', JSON.stringify(AppState.products));
+    localStorage.setItem('mrpatitas_services', JSON.stringify(AppState.services));
     localStorage.setItem('mrpatitas_cart', JSON.stringify(AppState.cart));
     localStorage.setItem('mrpatitas_favs', JSON.stringify(AppState.favorites));
   } catch (e) {
@@ -582,22 +630,331 @@ window.handleGeneralPublish = function(defaultType = 'lost') {
   }
 };
 
+// ==========================================
+// MARKETPLACE: PUBLICACIÓN SEGÚN ROL
+// (Vecino: no publica | Proveedor: Productos | Veterinario: Productos + Servicios/Turnos)
+// ==========================================
 window.handlePublishMarketplace = function() {
   requireAuth(() => {
-    showToast('Formulario para publicar producto o servicio comercial habilitado.', 'info');
-  }, 'Para publicar productos o servicios profesionales en el Marketplace local, iniciá sesión.');
+    const realRole = AppState.currentUser.accountRole || AppState.currentUser.role;
+
+    if (realRole === 'vecino') {
+      showToast('Las cuentas de Vecino pueden publicar mascotas perdidas, encontradas y adopciones. Para publicar en Marketplace necesitás cuenta de Proveedor o Veterinario.', 'error');
+      return;
+    }
+
+    openPublishMarketplaceModal(realRole);
+  }, 'Para publicar en el Marketplace local, iniciá sesión con cuenta de Proveedor o Veterinario.');
 };
 
+window.openPublishMarketplaceModal = function(role = 'proveedor') {
+  const isVet = role === 'veterinario';
+  let modal = document.getElementById('publishMarketplaceModal');
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = 'publishMarketplaceModal';
+  modal.className = 'modal-container fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-xs p-4 overflow-y-auto';
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4 my-auto">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-heading font-bold text-slate-900 dark:text-white text-lg">Publicar en Marketplace</h3>
+          <p class="text-xs text-slate-500">
+            ${isVet ? 'Perfil Veterinario verificado: Productos y Servicios habilitados' : 'Perfil Proveedor: Publicación de Productos habilitada'}
+          </p>
+        </div>
+        <button type="button" onclick="closePublishMarketplaceModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      ${isVet ? `
+        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+          <button type="button" id="mpTypeBtnProduct" onclick="switchMpPublishType('product')" class="py-2 rounded-lg text-xs font-heading font-bold bg-white text-slate-900 shadow-xs transition">
+            🛍️ Producto
+          </button>
+          <button type="button" id="mpTypeBtnService" onclick="switchMpPublishType('service')" class="py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition">
+            🩺 Servicio / Turno
+          </button>
+        </div>
+      ` : ''}
+
+      <form id="publishMarketplaceForm" onsubmit="submitMarketplaceItem(event)" class="space-y-3">
+        <input type="hidden" id="mpPublishKind" value="product">
+
+        <div id="mpImageWrapper">
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Foto del producto</label>
+          <label class="relative flex flex-col items-center justify-center w-full h-28 rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50 cursor-pointer overflow-hidden transition">
+            <div id="mpUploadPlaceholder" class="flex flex-col items-center justify-center text-slate-400 p-2 text-center">
+              <i class="fa-solid fa-camera text-lg mb-1 text-brand-500"></i>
+              <span class="text-xs font-medium text-slate-600">Tocá para subir una imagen</span>
+              <span class="text-[10px] text-slate-400">PNG, JPG o WEBP</span>
+            </div>
+            <img id="mpPreviewImg" src="" alt="Vista previa" class="hidden w-full h-full object-contain p-2">
+            <input id="mpProdImageInput" type="file" accept="image/*" onchange="previewMarketplaceImage(event)" class="hidden">
+          </label>
+        </div>
+
+        <div>
+          <label id="mpTitleLabel" class="block text-xs font-semibold text-slate-700 mb-1">Nombre del producto *</label>
+          <input id="mpProdTitle" type="text" required placeholder="Ej: Alimento Balanceado 15kg" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label id="mpPriceLabel" class="block text-xs font-semibold text-slate-700 mb-1">Precio ($) *</label>
+            <input id="mpProdPrice" type="number" required min="100" placeholder="15000" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+          </div>
+          <div id="mpCategoryCol">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Categoría</label>
+            <select id="mpProdCategory" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+              <option value="Alimento">Alimento</option>
+              <option value="Accesorios">Accesorios</option>
+              <option value="Confort">Confort</option>
+              <option value="Identificación">Identificación</option>
+            </select>
+          </div>
+          <div id="mpZoneCol" class="hidden">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Zona / Dirección</label>
+            <input id="mpServZone" type="text" placeholder="Ej: Centro, Río Cuarto" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Comercio / Clínica *</label>
+          <input id="mpProdVendor" type="text" required value="${AppState.currentUser?.businessName || AppState.currentUser?.name || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Descripción o prestaciones</label>
+          <textarea id="mpProdDesc" rows="2" placeholder="Detalles, horarios de atención o características..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs"></textarea>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closePublishMarketplaceModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-semibold text-xs transition">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs shadow-md transition">
+            Publicar Ahora
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
+};
+
+window.switchMpPublishType = function(kind) {
+  document.getElementById('mpPublishKind').value = kind;
+  const btnP = document.getElementById('mpTypeBtnProduct');
+  const btnS = document.getElementById('mpTypeBtnService');
+  const imgW = document.getElementById('mpImageWrapper');
+  const catCol = document.getElementById('mpCategoryCol');
+  const zoneCol = document.getElementById('mpZoneCol');
+  const titleLbl = document.getElementById('mpTitleLabel');
+  const priceLbl = document.getElementById('mpPriceLabel');
+
+  if (kind === 'product') {
+    btnP.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-white text-slate-900 shadow-xs transition';
+    btnS.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
+    imgW.classList.remove('hidden');
+    catCol.classList.remove('hidden');
+    zoneCol.classList.add('hidden');
+    titleLbl.textContent = 'Nombre del producto *';
+    priceLbl.textContent = 'Precio ($) *';
+  } else {
+    btnS.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-purple-600 text-white shadow-xs transition';
+    btnP.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
+    imgW.classList.add('hidden');
+    catCol.classList.add('hidden');
+    zoneCol.classList.remove('hidden');
+    titleLbl.textContent = 'Nombre del servicio veterinario *';
+    priceLbl.textContent = 'Tarifa consulta / turno ($) *';
+  }
+};
+
+window.previewMarketplaceImage = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById('mpPreviewImg');
+    const placeholder = document.getElementById('mpUploadPlaceholder');
+    if (preview && placeholder) {
+      preview.src = e.target.result;
+      preview.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+window.closePublishMarketplaceModal = function() {
+  const modal = document.getElementById('publishMarketplaceModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+};
+
+window.submitMarketplaceItem = function(e) {
+  e.preventDefault();
+  const kind = document.getElementById('mpPublishKind').value;
+  const title = document.getElementById('mpProdTitle').value.trim();
+  const price = Number(document.getElementById('mpProdPrice').value) || 0;
+  const vendor = document.getElementById('mpProdVendor').value.trim();
+  const desc = document.getElementById('mpProdDesc').value.trim();
+
+  if (kind === 'service') {
+    const zone = document.getElementById('mpServZone')?.value.trim() || AppState.currentUser?.address || 'Río Cuarto';
+    AppState.services.unshift({
+      id: 's_' + Date.now(),
+      title,
+      provider: vendor,
+      providerEmail: AppState.currentUser?.email || '',
+      pricePerHour: price,
+      zone,
+      rating: 5.0,
+      reviewsCount: 1,
+      badge: 'Veterinario Verificado',
+      icon: 'fa-solid fa-stethoscope',
+      features: desc ? desc.split(',').map(s => s.trim()) : ['Atención profesional', 'Turnos programados'],
+      availableTimes: ['09:00', '11:00', '16:00', '18:30']
+    });
+    saveToStorage();
+    closePublishMarketplaceModal();
+    switchMarketplaceTab('services');
+    renderMarketplace();
+    showToast('¡Servicio y turnos publicados en Marketplace!', 'success');
+    return;
+  }
+
+  let imageUrl = 'assets/logo.png';
+  const preview = document.getElementById('mpPreviewImg');
+  if (preview && preview.src && !preview.classList.contains('hidden') && preview.src.startsWith('data:image')) {
+    imageUrl = preview.src;
+  }
+
+  AppState.products.unshift({
+    id: 'p_' + Date.now(),
+    title,
+    price,
+    originalPrice: Math.round(price * 1.15),
+    category: document.getElementById('mpProdCategory').value,
+    vendor,
+    sellerEmail: AppState.currentUser?.email || '',
+    rating: 5.0,
+    reviewsCount: 1,
+    stock: 10,
+    badge: 'Nuevo',
+    image: imageUrl,
+    description: desc || 'Producto publicado en Río Cuarto.'
+  });
+  saveToStorage();
+  closePublishMarketplaceModal();
+  switchMarketplaceTab('products');
+  renderMarketplace();
+  showToast('¡Producto publicado en el Marketplace Local!', 'success');
+};
+
+// ==========================================
+// AUTENTICACIÓN Y REGISTRO CON 3 ROLES
+// ==========================================
 window.openAuthModal = function(defaultTab = 'login', reasonMsg = null) {
   const modal = document.getElementById('authModal');
   const reasonEl = document.getElementById('authModalReason');
   if (reasonEl) {
     reasonEl.textContent = reasonMsg || 'Para publicar en la red comunitaria o contactar a los dueños, por favor ingresá con tu cuenta.';
   }
+
+  setupRoleRegistrationFields();
   switchAuthModalTab(defaultTab);
+
   if (modal) {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
+  }
+};
+
+function setupRoleRegistrationFields() {
+  const regForm = document.querySelector('#modalSubViewRegister form');
+  if (!regForm || document.getElementById('dynamicRoleFieldsWrapper')) return;
+
+  const existingRadios = regForm.querySelectorAll('input[name="regRole"]');
+  if (existingRadios.length > 0) {
+    const roleContainer = existingRadios[0].closest('.grid') || existingRadios[0].parentElement.parentElement;
+    if (roleContainer) {
+      roleContainer.className = 'grid grid-cols-3 gap-2';
+      roleContainer.innerHTML = `
+        <label class="cursor-pointer">
+          <input type="radio" name="regRole" value="vecino" checked onchange="toggleRegExtraFields('vecino')" class="peer hidden">
+          <div class="p-2.5 rounded-xl border border-slate-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 text-center transition">
+            <span class="block text-base">🏡</span>
+            <span class="font-heading font-bold text-[11px] text-slate-800 block">Vecino</span>
+          </div>
+        </label>
+        <label class="cursor-pointer">
+          <input type="radio" name="regRole" value="proveedor" onchange="toggleRegExtraFields('proveedor')" class="peer hidden">
+          <div class="p-2.5 rounded-xl border border-slate-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 text-center transition">
+            <span class="block text-base">🏪</span>
+            <span class="font-heading font-bold text-[11px] text-slate-800 block">Proveedor</span>
+          </div>
+        </label>
+        <label class="cursor-pointer">
+          <input type="radio" name="regRole" value="veterinario" onchange="toggleRegExtraFields('veterinario')" class="peer hidden">
+          <div class="p-2.5 rounded-xl border border-slate-200 peer-checked:border-purple-500 peer-checked:bg-purple-50 text-center transition">
+            <span class="block text-base">🩺</span>
+            <span class="font-heading font-bold text-[11px] text-slate-800 block">Veterinario</span>
+          </div>
+        </label>
+      `;
+    }
+  }
+
+  const extraWrapper = document.createElement('div');
+  extraWrapper.id = 'dynamicRoleFieldsWrapper';
+  extraWrapper.className = 'hidden space-y-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200';
+  extraWrapper.innerHTML = `
+    <p id="extraFieldsTitle" class="text-[11px] font-heading font-bold text-slate-700">Datos Comerciales</p>
+    <div>
+      <input id="regBusinessName" type="text" placeholder="Nombre del Comercio o Clínica Veterinaria *" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <input id="regCuit" type="text" placeholder="CUIT / CUIL *" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+      <input id="regAddress" type="text" placeholder="Dirección en Río Cuarto *" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+    </div>
+    <div id="vetMatriculaWrapper" class="hidden space-y-1.5">
+      <input id="regMatricula" type="text" placeholder="N° de Matrícula Profesional Veterinaria *" class="w-full px-3 py-2 rounded-xl border border-purple-200 text-xs bg-white">
+      <p class="text-[10px] text-purple-700 bg-purple-50 px-2.5 py-1.5 rounded-lg border border-purple-100">
+        🔒 Por seguridad comunitaria, tu solicitud será revisada por el equipo de Mr. Patitas antes de habilitar Servicios y Turnos.
+      </p>
+    </div>
+  `;
+
+  const submitBtn = regForm.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    regForm.insertBefore(extraWrapper, submitBtn);
+  }
+}
+
+window.toggleRegExtraFields = function(role) {
+  const wrapper = document.getElementById('dynamicRoleFieldsWrapper');
+  const title = document.getElementById('extraFieldsTitle');
+  const vetMat = document.getElementById('vetMatriculaWrapper');
+  if (!wrapper) return;
+
+  if (role === 'vecino') {
+    wrapper.classList.add('hidden');
+  } else if (role === 'proveedor') {
+    wrapper.classList.remove('hidden');
+    if (title) title.textContent = '🏪 Datos del Comercio / Proveedor (Alta Automática)';
+    if (vetMat) vetMat.classList.add('hidden');
+  } else if (role === 'veterinario') {
+    wrapper.classList.remove('hidden');
+    if (title) title.textContent = '🩺 Datos de Clínica / Profesional Veterinario';
+    if (vetMat) vetMat.classList.remove('hidden');
   }
 };
 
@@ -634,6 +991,9 @@ window.fillDemoCredentials = function(role) {
   if (role === 'vecino') {
     if (emailInput) emailInput.value = 'vecino@mrpatitas.com';
     if (passInput) passInput.value = 'password123';
+  } else if (role === 'proveedor') {
+    if (emailInput) emailInput.value = 'proveedor@mrpatitas.com';
+    if (passInput) passInput.value = 'password123';
   } else {
     if (emailInput) emailInput.value = 'veterinaria@mrpatitas.com';
     if (passInput) passInput.value = 'password123';
@@ -648,27 +1008,41 @@ window.handleModalLogin = function(e) {
 
   const user = AppState.usersDb.find(u => u.email.toLowerCase() === email && u.password === pass);
 
-  if (user) {
-    AppState.currentUser = { ...user, isLogged: true };
-    AppState.userRole = user.role;
-    saveToStorage();
-    updateHeaderUserPill();
-    closeAuthModal();
-    showToast(`¡Bienvenido/a de nuevo, ${user.name}!`, 'success');
-
-    if (AppState.pendingProtectedAction) {
-      const callback = AppState.pendingProtectedAction;
-      AppState.pendingProtectedAction = null;
-      callback();
-    } else {
-      if (AppState.activeView === 'welcome') {
-        navigateTo('home');
-      } else {
-        navigateTo(AppState.activeView);
-      }
-    }
-  } else {
+  if (!user) {
     showToast('Credenciales incorrectas. Verificá los datos o usá los atajos demo.', 'error');
+    return;
+  }
+
+  if (user.role === 'veterinario' && user.status === 'pending') {
+    showToast('Tu cuenta de Veterinario aún está pendiente de verificación por el equipo de Mr. Patitas.', 'info');
+    return;
+  }
+
+  let wasReactivated = false;
+  if (user.disabled) {
+    user.disabled = false;
+    delete user.disabledAt;
+    wasReactivated = true;
+  }
+
+  AppState.currentUser = { ...user, accountRole: user.accountRole || user.role, isLogged: true };
+  AppState.userRole = user.role;
+  saveToStorage();
+  updateHeaderUserPill();
+  closeAuthModal();
+
+  if (wasReactivated) {
+    showToast(`¡Bienvenido/a de nuevo, ${user.name}! Tu cuenta fue reactivada con todos tus datos.`, 'success');
+  } else {
+    showToast(`¡Bienvenido/a de nuevo, ${user.name}!`, 'success');
+  }
+
+  if (AppState.pendingProtectedAction) {
+    const callback = AppState.pendingProtectedAction;
+    AppState.pendingProtectedAction = null;
+    callback();
+  } else {
+    navigateTo(AppState.activeView === 'welcome' ? 'home' : AppState.activeView);
   }
 };
 
@@ -683,6 +1057,11 @@ window.handleModalRegister = function(e) {
   const roleEl = document.querySelector('input[name="regRole"]:checked');
   const role = roleEl ? roleEl.value : 'vecino';
 
+  const businessName = document.getElementById('regBusinessName')?.value.trim() || '';
+  const cuit = document.getElementById('regCuit')?.value.trim() || '';
+  const address = document.getElementById('regAddress')?.value.trim() || '';
+  const matricula = document.getElementById('regMatricula')?.value.trim() || '';
+
   if (password.length < 6) {
     showToast('La contraseña debe tener al menos 6 caracteres.', 'error');
     return;
@@ -696,6 +1075,17 @@ window.handleModalRegister = function(e) {
     return;
   }
 
+  if (role === 'proveedor' || role === 'veterinario') {
+    if (!businessName || !cuit || !address) {
+      showToast('Completá Nombre Comercial, CUIT y Dirección en Río Cuarto.', 'error');
+      return;
+    }
+  }
+  if (role === 'veterinario' && !matricula) {
+    showToast('Ingresá tu N° de Matrícula Profesional Veterinaria para verificar tu cuenta.', 'error');
+    return;
+  }
+
   const exists = AppState.usersDb.some(u => u.email.toLowerCase() === email);
   if (exists) {
     showToast('Ese correo ya está registrado. Por favor iniciá sesión.', 'error');
@@ -704,6 +1094,8 @@ window.handleModalRegister = function(e) {
     return;
   }
 
+  const initialStatus = role === 'veterinario' ? 'pending' : 'approved';
+
   const newUser = {
     name,
     email,
@@ -711,19 +1103,38 @@ window.handleModalRegister = function(e) {
     barrio,
     password,
     role,
-    avatar: role === 'proveedor' ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+    accountRole: role,
+    status: initialStatus,
+    disabled: false,
+    businessName,
+    cuit,
+    address,
+    matricula,
+    avatar: role === 'veterinario'
+      ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+      : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
     activeReports: 0,
     rescuedCount: 0
   };
 
   AppState.usersDb.push(newUser);
+  saveToStorage();
+
+  // Si es Veterinario, frena el ingreso automático y deja la solicitud pendiente de verificación
+  if (role === 'veterinario') {
+    closeAuthModal();
+    showToast('Solicitud enviada a Lucila y Eliana. Te habilitaremos tras verificar tu matrícula.', 'info');
+    return;
+  }
+
+  // Vecino o Proveedor ingresan de forma automática
   AppState.currentUser = { ...newUser, isLogged: true };
   AppState.userRole = role;
   saveToStorage();
   updateHeaderUserPill();
   closeAuthModal();
 
-  showToast(`¡Cuenta creada con éxito! Bienvenido, ${name}.`, 'success');
+  showToast(`¡Cuenta de ${role === 'proveedor' ? 'Proveedor' : 'Vecino'} creada con éxito! Bienvenido/a, ${name}.`, 'success');
 
   if (AppState.pendingProtectedAction) {
     const callback = AppState.pendingProtectedAction;
@@ -825,7 +1236,8 @@ function renderPetCards() {
   const container = document.getElementById('petListContainer');
   if (!container) return;
 
-  let filtered = AppState.pets;
+  // Ocultar mascotas de usuarios que tengan la cuenta deshabilitada temporalmente
+  let filtered = AppState.pets.filter(p => !isUserDisabledByEmail(p.ownerEmail));
 
   if (AppState.selectedCategory === 'lost') {
     filtered = filtered.filter(p => p.type === 'lost');
@@ -1225,7 +1637,7 @@ function initMap() {
 
   L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '&copy; OpenStreetMap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Mr. Patitas'
+    attribution: '© OpenStreetMap France | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Mr. Patitas'
   }).addTo(AppState.mapInstance);
   refreshMapMarkers('all');
 }
@@ -1255,13 +1667,15 @@ window.refreshMapMarkers = function(filterType = 'all') {
     }
   });
 
-  AppState.pets.forEach(pet => {
-    if (filterType === 'lost' && pet.type !== 'lost') return;
-    if (filterType === 'found' && pet.type !== 'found') return;
-    if (filterType === 'vets') return;
+  AppState.pets
+    .filter(pet => !isUserDisabledByEmail(pet.ownerEmail))
+    .forEach(pet => {
+      if (filterType === 'lost' && pet.type !== 'lost') return;
+      if (filterType === 'found' && pet.type !== 'found') return;
+      if (filterType === 'vets') return;
 
-    addPetMarkerToMap(pet);
-  });
+      addPetMarkerToMap(pet);
+    });
 
   if (filterType === 'all' || filterType === 'vets') {
     AppState.vetPoints.forEach(vet => {
@@ -1335,7 +1749,7 @@ function renderAdoptions() {
   const container = document.getElementById('adoptionsListContainer');
   if (!container) return;
 
-  const adoptions = AppState.pets.filter(p => p.type === 'adoption');
+  const adoptions = AppState.pets.filter(p => p.type === 'adoption' && !isUserDisabledByEmail(p.ownerEmail));
 
   container.innerHTML = adoptions.map(pet => {
     const isFav = AppState.favorites.includes(pet.id);
@@ -1443,7 +1857,9 @@ function renderProducts() {
   const container = document.getElementById('marketplaceProductsContainer');
   if (!container) return;
 
-  container.innerHTML = AppState.products.map(prod => `
+  const visibleProducts = AppState.products.filter(prod => !isUserDisabledByEmail(prod.sellerEmail));
+
+  container.innerHTML = visibleProducts.map(prod => `
     <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col group hover:shadow-md transition">
       <div class="relative h-48 bg-slate-100 overflow-hidden p-4 flex items-center justify-center">
         <img src="${prod.image}" alt="${prod.title}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform">
@@ -1485,7 +1901,9 @@ function renderServices() {
   const container = document.getElementById('marketplaceServicesContainer');
   if (!container) return;
 
-  container.innerHTML = AppState.services.map(serv => `
+  const visibleServices = AppState.services.filter(serv => !isUserDisabledByEmail(serv.providerEmail));
+
+  container.innerHTML = visibleServices.map(serv => `
     <div class="p-5 bg-white rounded-3xl border border-slate-200/90 shadow-xs flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between hover:shadow-md transition">
       <div class="flex items-start gap-4">
         <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-500 flex items-center justify-center text-2xl shrink-0 border border-brand-100">
@@ -1664,7 +2082,8 @@ window.submitCheckoutOrder = function(e) {
 
   const successModal = document.getElementById('orderSuccessModal');
   if (successModal) {
-    document.getElementById('orderIdSpan').textContent = `MP-${Math.floor(100000 + Math.random() * 900000)}`;
+    const orderSpan = document.getElementById('orderIdSpan');
+    if (orderSpan) orderSpan.textContent = `MP-${Math.floor(100000 + Math.random() * 900000)}`;
     successModal.classList.remove('hidden');
     successModal.classList.add('flex');
   }
@@ -1721,7 +2140,7 @@ window.confirmServiceBooking = function(e) {
 };
 
 // ==========================================
-// SECCIÓN: PERFIL Y CONFIGURACIÓN DE ROLES
+// SECCIÓN: PERFIL Y PANELES POR ROL REAL
 // ==========================================
 function renderProfile() {
   const container = document.getElementById('profileContentContainer');
@@ -1734,11 +2153,17 @@ function renderProfile() {
     phone: 'No registrado',
     barrio: 'Río Cuarto, Centro',
     avatar: 'assets/logo.png',
-    activeReports: 0,
-    rescuedCount: 0
+    role: 'vecino'
   };
 
-  const isProvider = AppState.userRole === 'proveedor';
+  const role = isLogged ? (user.accountRole || user.role) : 'vecino';
+  const roleBadge = role === 'veterinario'
+    ? '<span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-heading font-bold bg-purple-100 text-purple-700 self-center sm:self-auto">🩺 Veterinario Verificado</span>'
+    : (role === 'proveedor'
+      ? '<span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-heading font-bold bg-blue-100 text-blue-700 self-center sm:self-auto">🏪 Proveedor Comercial</span>'
+      : '<span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-heading font-bold bg-brand-50 text-brand-600 self-center sm:self-auto">🏡 Cuenta Vecino</span>');
+
+  const pendingVets = AppState.usersDb.filter(u => u.role === 'veterinario' && u.status === 'pending');
 
   container.innerHTML = `
     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-6">
@@ -1752,32 +2177,89 @@ function renderProfile() {
           <div>
             <h2 class="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900">${user.name}</h2>
             <p class="text-xs text-slate-500 font-medium mt-1">📍 ${user.barrio} · ${user.email}</p>
+            ${user.businessName ? `<p class="text-xs text-slate-600 font-semibold mt-1">🏢 ${user.businessName} ${user.matricula ? `· Matrícula: ${user.matricula}` : ''}</p>` : ''}
           </div>
-          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-heading font-bold ${isProvider ? 'bg-purple-100 text-purple-700' : 'bg-brand-50 text-brand-600'} self-center sm:self-auto">
-            ${isProvider ? '🏥 Modo Proveedor / Rescatista' : '🏡 Modo Vecino'}
-          </span>
+          ${roleBadge}
         </div>
 
-        <div class="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div class="text-center sm:text-left">
-            <span class="text-xs font-heading font-bold text-slate-800 block">Conmutador de Rol Operativo</span>
-            <span class="text-[11px] text-slate-500">Alterná entre vista vecinal y panel de clínica/refugio</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold ${!isProvider ? 'text-brand-600' : 'text-slate-400'}">Vecino</span>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" onchange="toggleUserRole(this.checked)" class="sr-only role-toggle-checkbox" ${isProvider ? 'checked' : ''}>
-              <div class="w-11 h-6 bg-slate-300 rounded-full role-toggle-label transition-colors">
-                <div class="role-toggle-dot absolute top-[2px] left-[2px] bg-white border border-slate-200 rounded-full h-5 w-5 transition-transform"></div>
-              </div>
-            </label>
-            <span class="text-xs font-semibold ${isProvider ? 'text-purple-600' : 'text-slate-400'}">Rescatista</span>
-          </div>
+        <div class="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left">
+          <span class="text-xs font-heading font-bold text-slate-800 block">Permisos habilitados para tu cuenta:</span>
+          <p class="text-xs text-slate-600 mt-1">
+            ${role === 'veterinario'
+              ? '✓ Mascotas Perdidas, Encontradas y Adopciones · ✓ Productos en Marketplace · ✓ Servicios y Turnos Veterinarios'
+              : (role === 'proveedor'
+                ? '✓ Mascotas Perdidas, Encontradas y Adopciones · ✓ Publicación de Productos en Marketplace (Servicios exclusivo Veterinarios)'
+                : '✓ Mascotas Perdidas, Encontradas y Adopciones comunitarias')}
+          </p>
         </div>
       </div>
     </div>
 
-    ${isProvider ? renderProviderDashboard() : renderNeighborDashboard()}
+    ${pendingVets.length > 0 ? `
+      <div class="bg-purple-50/70 rounded-3xl p-6 border border-purple-200 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-bold text-purple-900 text-sm">🛡️ Solicitudes Veterinarias Pendientes de Verificación (${pendingVets.length})</h3>
+            <p class="text-xs text-purple-700">Panel de control de seguridad (Administración Lucila & Eliana)</p>
+          </div>
+        </div>
+        <div class="space-y-2">
+          ${pendingVets.map(v => `
+            <div class="p-3.5 bg-white rounded-2xl border border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p class="font-heading font-bold text-slate-900 text-xs">${v.name} — ${v.businessName}</p>
+                <p class="text-[11px] text-slate-500">Matrícula: <strong>${v.matricula}</strong> · CUIT: ${v.cuit} · ${v.address}</p>
+              </div>
+              <button onclick="approveVeterinarian('${v.email}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-heading font-bold rounded-xl transition shrink-0">
+                ✓ Verificar y Habilitar
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    ${role === 'veterinario' ? renderProviderDashboard() : renderNeighborDashboard()}
+
+    ${isLogged ? `
+      <!-- GESTIÓN Y PRIVACIDAD DE LA CUENTA (DESHABILITAR O ELIMINAR) -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-4">
+        <div>
+          <h4 class="font-heading font-bold text-slate-900 text-base">Gestión y Seguridad de la Cuenta</h4>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Podés pausar tu cuenta temporalmente sin perder tus datos, o eliminarla de forma permanente.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <!-- Deshabilitar Cuenta Temporalmente -->
+          <button type="button" onclick="openAccountActionModal('disable')" class="p-4 rounded-2xl border border-amber-200 bg-amber-50/70 hover:bg-amber-100/80 text-left transition flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+              <i class="fa-solid fa-pause"></i>
+            </div>
+            <div>
+              <span class="font-heading font-bold text-xs text-amber-900 block">Deshabilitar cuenta</span>
+              <span class="text-[11px] text-amber-800/90 leading-snug block mt-0.5">
+                Pausa tu perfil y oculta tus publicaciones sin borrar tus datos. Se reactiva al volver a iniciar sesión.
+              </span>
+            </div>
+          </button>
+
+          <!-- Eliminar Cuenta Definitivamente -->
+          <button type="button" onclick="openAccountActionModal('delete')" class="p-4 rounded-2xl border border-red-200 bg-red-50/70 hover:bg-red-100/80 text-left transition flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
+              <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <div>
+              <span class="font-heading font-bold text-xs text-red-800 block">Eliminar cuenta</span>
+              <span class="text-[11px] text-red-700/90 leading-snug block mt-0.5">
+                Borra definitivamente tu perfil, guardados, mascotas y productos publicados.
+              </span>
+            </div>
+          </button>
+        </div>
+      </div>
+    ` : ''}
 
     <div class="pt-4 text-center">
       ${isLogged ? `
@@ -1793,24 +2275,165 @@ function renderProfile() {
   `;
 }
 
-window.toggleUserRole = function(checked) {
-  AppState.userRole = checked ? 'proveedor' : 'vecino';
-  if (AppState.currentUser) {
-    AppState.currentUser.role = AppState.userRole;
-    saveToStorage();
+// ==========================================
+// GESTIÓN DE CUENTA: DESHABILITAR O ELIMINAR
+// ==========================================
+window.openAccountActionModal = function(actionType) {
+  if (!AppState.currentUser || !AppState.currentUser.isLogged) return;
+
+  const existingModal = document.getElementById('accountActionModal');
+  if (existingModal) existingModal.remove();
+
+  const isDelete = actionType === 'delete';
+
+  const modalHtml = `
+    <div id="accountActionModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+        
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl ${isDelete ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'} flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid ${isDelete ? 'fa-triangle-exclamation' : 'fa-user-clock'}"></i>
+            </div>
+            <div>
+              <h3 class="font-heading font-bold text-slate-900 text-base">
+                ${isDelete ? '¿Eliminar cuenta definitivamente?' : '¿Deshabilitar cuenta temporalmente?'}
+              </h3>
+              <span class="text-[11px] text-slate-500">${AppState.currentUser.email}</span>
+            </div>
+          </div>
+          <button type="button" onclick="closeAccountActionModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="p-3.5 rounded-2xl ${isDelete ? 'bg-red-50 border border-red-200 text-red-900' : 'bg-amber-50 border border-amber-200 text-amber-900'} text-xs leading-relaxed space-y-1.5">
+          ${isDelete ? `
+            <p><strong>Esta acción es irreversible:</strong></p>
+            <ul class="list-disc pl-4 space-y-1 text-[11px]">
+              <li>Se eliminará tu usuario de la plataforma Mr. Patitas.</li>
+              <li>Se borrarán tus reportes de mascotas, productos/servicios publicados y guardados.</li>
+              <li>Si querés volver en el futuro, deberás crear una cuenta nueva.</li>
+            </ul>
+          ` : `
+            <p><strong>Tu información quedará a salvo:</strong></p>
+            <ul class="list-disc pl-4 space-y-1 text-[11px]">
+              <li>Tu perfil quedará pausado y tus publicaciones dejarán de mostrarse temporalmente.</li>
+              <li>No perderás tu historial, guardados ni datos comerciales.</li>
+              <li><strong>Para reactivarla:</strong> simplemente volvé a iniciar sesión con tu correo y contraseña cuando quieras.</li>
+            </ul>
+          `}
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">
+            Ingresá tu contraseña para confirmar *
+          </label>
+          <input type="password" id="confirmAccountActionPass" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 ${isDelete ? 'focus:ring-red-500' : 'focus:ring-amber-500'}">
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="closeAccountActionModal()" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-semibold text-xs transition">
+            Cancelar
+          </button>
+          <button type="button" onclick="executeAccountAction('${actionType}')" class="flex-1 py-3 rounded-xl ${isDelete ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'} text-white font-heading font-bold text-xs shadow-md transition">
+            ${isDelete ? 'Eliminar Definitivamente' : 'Deshabilitar Cuenta'}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.closeAccountActionModal = function() {
+  const modal = document.getElementById('accountActionModal');
+  if (modal) modal.remove();
+};
+
+window.executeAccountAction = function(actionType) {
+  const user = AppState.currentUser;
+  if (!user) return;
+
+  const passInput = document.getElementById('confirmAccountActionPass');
+  const enteredPass = passInput ? passInput.value.trim() : '';
+
+  const dbUser = AppState.usersDb.find(u => u.email.toLowerCase() === user.email.toLowerCase());
+  const expectedPass = (dbUser && dbUser.password) || user.password || 'password123';
+
+  if (!enteredPass || enteredPass !== expectedPass) {
+    showToast('Contraseña incorrecta. Verificá tu clave para continuar.', 'error');
+    return;
   }
-  showToast(`Cambiado a ${AppState.userRole === 'proveedor' ? 'Modo Rescatista / Clínica' : 'Modo Vecino'}.`, 'info');
+
+  const userEmailLower = user.email.toLowerCase();
+
+  if (actionType === 'disable') {
+    if (dbUser) {
+      dbUser.disabled = true;
+      dbUser.disabledAt = new Date().toISOString();
+    } else {
+      AppState.usersDb.push({
+        ...user,
+        password: expectedPass,
+        disabled: true,
+        disabledAt: new Date().toISOString()
+      });
+    }
+
+    AppState.currentUser = null;
+    AppState.userRole = 'vecino';
+    saveToStorage();
+
+    closeAccountActionModal();
+    updateHeaderUserPill();
+    renderPetCards();
+    navigateTo('home');
+    showToast('Tu cuenta fue deshabilitada. Tus datos están guardados y se reactivará al volver a iniciar sesión.', 'info');
+
+  } else if (actionType === 'delete') {
+    AppState.usersDb = AppState.usersDb.filter(u => u.email.toLowerCase() !== userEmailLower);
+    AppState.pets = AppState.pets.filter(p => (p.ownerEmail || '').toLowerCase() !== userEmailLower);
+    AppState.products = AppState.products.filter(prod => (prod.sellerEmail || '').toLowerCase() !== userEmailLower);
+    AppState.services = AppState.services.filter(srv => (srv.providerEmail || '').toLowerCase() !== userEmailLower);
+
+    AppState.favorites = [];
+    AppState.cart = [];
+    AppState.currentUser = null;
+    AppState.userRole = 'vecino';
+    saveToStorage();
+
+    closeAccountActionModal();
+    updateHeaderUserPill();
+    updateCartBadge();
+    renderPetCards();
+    navigateTo('home');
+    showToast('Tu cuenta y todos tus datos fueron eliminados definitivamente.', 'success');
+  }
+};
+
+window.approveVeterinarian = function(email) {
+  const vet = AppState.usersDb.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (!vet) return;
+  vet.status = 'approved';
+  saveToStorage();
+  showToast(`¡Matrícula verificada! ${vet.name} ya puede iniciar sesión y ofrecer Servicios y Turnos.`, 'success');
   renderProfile();
 };
 
 function renderNeighborDashboard() {
-  const myReports = AppState.pets.filter(p => p.id === 'milo');
+  const userEmail = AppState.currentUser?.email?.toLowerCase();
+  const myReports = AppState.pets.filter(p =>
+    (userEmail && p.ownerEmail && p.ownerEmail.toLowerCase() === userEmail) || p.id === 'milo'
+  );
 
   return `
     <div class="grid grid-cols-3 gap-4">
       <div class="p-5 rounded-3xl bg-white border border-slate-200/90 text-center shadow-xs">
-        <span class="font-heading font-extrabold text-3xl text-brand-500">1</span>
-        <span class="text-xs text-slate-500 block mt-1 font-medium">Reporte Activo</span>
+        <span class="font-heading font-extrabold text-3xl text-brand-500">${myReports.length}</span>
+        <span class="text-xs text-slate-500 block mt-1 font-medium">Reporte${myReports.length === 1 ? '' : 's'} Activo${myReports.length === 1 ? '' : 's'}</span>
       </div>
       <div class="p-5 rounded-3xl bg-white border border-slate-200/90 text-center shadow-xs">
         <span class="font-heading font-extrabold text-3xl text-emerald-500">2</span>
@@ -1877,7 +2500,7 @@ function renderProviderDashboard() {
       <div class="flex items-center justify-between">
         <div>
           <h3 class="font-heading font-bold text-slate-900 text-base">Radio de Alertas Comunitarias</h3>
-          <p class="text-xs text-slate-500">Recibir avisos prioritarios de extravíos cerca de tu veterinaria o refugio</p>
+          <p class="text-xs text-slate-500">Recibir avisos prioritarios de extravíos cerca de tu clínica veterinaria</p>
         </div>
         <span id="radiusLabel" class="font-heading font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-xl text-xs">3 km</span>
       </div>
@@ -1936,7 +2559,7 @@ function renderFavorites() {
   const container = document.getElementById('favoritesListContainer');
   if (!container) return;
 
-  const favPets = AppState.pets.filter(p => AppState.favorites.includes(p.id));
+  const favPets = AppState.pets.filter(p => AppState.favorites.includes(p.id) && !isUserDisabledByEmail(p.ownerEmail));
 
   if (favPets.length === 0) {
     container.innerHTML = `
@@ -2054,7 +2677,7 @@ function setupEventListeners() {
   }
 
   const darkModeBtn = document.getElementById('darkModeBtn');
-   if (darkModeBtn) {
+  if (darkModeBtn) {
     darkModeBtn.addEventListener('click', toggleDarkMode);
   }
 
@@ -2071,6 +2694,7 @@ function renderApp() {
   renderPetCards();
   updateCartBadge();
 }
+
 // ==========================================
 // MODO OSCURO / MODO CLARO (NATIVO TAILWIND)
 // ==========================================
@@ -2102,6 +2726,5 @@ function initTheme() {
     if (iconEl) iconEl.className = 'fa-solid fa-moon text-sm';
   }
 }
-// Llamá a initTheme() dentro de tu función initApp() principal
 
 document.addEventListener('DOMContentLoaded', initApp);
