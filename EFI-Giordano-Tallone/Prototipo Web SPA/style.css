@@ -24,11 +24,14 @@
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-body {
+html, body {
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
   color: #1e293b;
   background-color: #f8fafc;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
 }
 
 h1, h2, h3, h4, h5, h6, .font-heading {
@@ -51,18 +54,27 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   background: var(--brand-500);
 }
 
-/* Transiciones fluidas entre vistas SPA */
+/* ======================================================== */
+/* NAVEGACIÓN ENTRE VISTAS SPA (INCLUYE PORTADA WELCOME)    */
+/* ======================================================== */
 .spa-view {
-  display: none;
+  display: none !important;
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .spa-view.active {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
+  display: block !important;
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+#view-welcome.active {
+  display: flex !important;
+  min-height: 100vh;
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 /* Touch targets móviles recomendados (>= 44px) */
@@ -89,7 +101,6 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 
 /* ======================================================== */
 /* ACENTO VISUAL DE ALERTA PARA CATEGORÍA "PERDIDOS" (HOVER) */
-/* Sin texto explícito "Urgente" - Requerimiento UX/UI      */
 /* ======================================================== */
 .pill-lost-alert {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -189,32 +200,10 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 .animate-modal-enter {
   animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-/* Ocultar todas las vistas de la SPA por defecto */
-.spa-view {
-  display: none;
-}
 
-/* Mostrar la vista activa estándar */
-.spa-view.active {
-  display: block;
-}
-
-/* Excepción para la pantalla de bienvenida que utiliza diseño flexbox */
-#view-welcome.active {
-  display: flex;
-}
-
-.spa-view {
-  display: none !important;
-}
-.spa-view.active {
-  display: block !important;
-}
-#view-welcome.active {
-  display: flex !important;
-}
-
-/* Estilos limpios para el Modo Oscuro */
+/* ======================================================== */
+/* MODO OSCURO                                              */
+/* ======================================================== */
 html.dark body {
   background-color: #0B132B !important;
   color: #F8FAFC !important;
@@ -227,7 +216,6 @@ html.dark footer {
   border-color: #1E293B !important;
 }
 
-/* Fondos blancos, grises claros y tarjetas */
 html.dark .bg-white,
 html.dark .spa-view .bg-white,
 html.dark .bg-slate-50,
@@ -239,26 +227,23 @@ html.dark .bg-gray-100 {
   border-color: #334155 !important;
 }
 
-/* Fondos con colores pastel o degradados (Banner principal y tarjeta Perdidas) */
 html.dark .bg-orange-50,
 html.dark .bg-amber-50,
-html.dark .bg-red-50,
 html.dark [class*="from-orange-"],
 html.dark [class*="from-amber-"],
 html.dark [class*="from-red-"],
-html.dark .quick-access-lost {
+html.dark [class*="bg-amber-50"],
+html.dark [class*="bg-orange-50"],
+html.dark [class*="bg-yellow-50"],
+html.dark [class*="bg-stone-50"],
+html.dark [class*="bg-neutral-50"],
+html.dark [class*="bg-zinc-50"] {
   background-image: none !important;
   background-color: #1E293B !important;
   border-color: #334155 !important;
+  color: #F8FAFC !important;
 }
 
-/* Hover de la tarjeta de Mascotas Perdidas en modo oscuro */
-html.dark .quick-access-lost:hover {
-  background-color: #283548 !important;
-  border-color: #EF4444 !important;
-}
-
-/* Inputs y selectores (como el selector de barrio "Centro" en el header) */
 html.dark select,
 html.dark input {
   background-color: #1E293B !important;
@@ -266,7 +251,6 @@ html.dark input {
   border-color: #334155 !important;
 }
 
-/* Textos */
 html.dark .text-slate-900,
 html.dark .text-slate-800,
 html.dark .text-slate-700,
@@ -291,38 +275,20 @@ html.dark [class*="bg-red-50"] {
   box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.25) !important;
 }
 
-/* Efecto al pasar el mouse en Modo Oscuro */
 html.dark .quick-access-lost:hover {
   background: linear-gradient(135deg, #4C1D2A 0%, #263349 100%) !important;
   border-color: #F87171 !important;
   box-shadow: 0 10px 25px -4px rgba(239, 68, 68, 0.4) !important;
 }
 
-/* Asegurar que el subtítulo "Ver alertas activas" se lea nítido */
 html.dark .quick-access-lost .text-red-600,
 html.dark .quick-access-lost .text-rose-600 {
   color: #FCA5A5 !important;
 }
 
-/* Bloquear cualquier desbordamiento horizontal en la página */
-html, body {
-  max-width: 100%;
-  overflow-x: hidden !important;
-  position: relative;
-}
-
-/* Cajas pastel con opacidad (ej. bg-amber-50/50, bg-orange-50/40) en vistas de detalle e historial */
-html.dark [class*="bg-amber-50"],
-html.dark [class*="bg-orange-50"],
-html.dark [class*="bg-yellow-50"],
-html.dark [class*="bg-stone-50"],
-html.dark [class*="bg-neutral-50"],
-html.dark [class*="bg-zinc-50"] {
-  background-color: #1E293B !important;
-  border-color: #334155 !important;
-  color: #F8FAFC !important;
-}
-
+/* ======================================================== */
+/* RESPONSIVE MÓVIL                                         */
+/* ======================================================== */
 @media (max-width: 640px) {
   #appTopBar,
   main,
@@ -331,7 +297,6 @@ html.dark [class*="bg-zinc-50"] {
     overflow-x: hidden !important;
   }
 
-  /* Ajustar barra superior para que no empuje hacia afuera */
   #appTopBar > div {
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
@@ -351,7 +316,6 @@ html.dark [class*="bg-zinc-50"] {
     min-width: auto !important;
   }
 
-  /* Ocultar subtítulo del logo, nombre al lado del avatar y botón "+ Publicar" del header */
   #appTopBar p,
   #appTopBar button:has(.fa-plus),
   #appTopBar [id*="publish"],
@@ -361,7 +325,6 @@ html.dark [class*="bg-zinc-50"] {
     display: none !important;
   }
 
-  /* Evitar que la fila de filtros (Todos, Perdidos, Encontrados...) ensanche la página */
   .pill-lost-alert {
     flex-shrink: 0;
   }
@@ -372,7 +335,6 @@ html.dark [class*="bg-zinc-50"] {
     padding-bottom: 0.25rem;
   }
 
-  /* Ajustar grillas de 3 columnas (estadísticas de perfil) */
   .grid-cols-3 {
     gap: 0.4rem !important;
   }
@@ -383,4 +345,146 @@ html.dark [class*="bg-zinc-50"] {
   .grid-cols-3 span {
     font-size: 0.7rem !important;
   }
+}
+
+/* ========================================================
+   PANTALLA DE BIENVENIDA: FONDO FULLSCREEN Y ANIMACIONES
+   ======================================================== */
+#view-welcome {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 45 !important;
+}
+
+#view-welcome:not(.active),
+#view-welcome.hidden {
+  display: none !important;
+}
+
+/* Fondo multimedia a pantalla completa */
+.welcome-bg-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: #0f172a;
+  pointer-events: none;
+}
+
+.welcome-bg-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  animation: kenBurnsEffect 24s ease-in-out infinite alternate;
+  filter: saturate(1.15) contrast(1.05);
+}
+
+.welcome-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at 50% 42%,
+      rgba(15, 23, 42, 0.42) 0%,
+      rgba(15, 23, 42, 0.78) 68%,
+      rgba(15, 23, 42, 0.94) 100%
+    ),
+    linear-gradient(135deg, rgba(255, 107, 53, 0.24) 0%, rgba(15, 23, 42, 0.55) 100%);
+  backdrop-filter: blur(2px);
+}
+
+@keyframes kenBurnsEffect {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.14) translate(-1.5%, -1%);
+  }
+}
+
+/* Huellitas flotantes de fondo */
+.floating-paws i {
+  position: absolute;
+  bottom: -10%;
+  color: rgba(255, 255, 255, 0.14);
+  animation: floatPawsUp 14s linear infinite;
+  pointer-events: none;
+}
+
+.floating-paws .paw-1 { left: 10%; animation-duration: 13s; animation-delay: 0s; font-size: 2rem; }
+.floating-paws .paw-2 { left: 26%; animation-duration: 17s; animation-delay: 3s; font-size: 1.4rem; }
+.floating-paws .paw-3 { left: 50%; animation-duration: 15s; animation-delay: 5s; font-size: 1.8rem; color: rgba(255, 107, 53, 0.28); }
+.floating-paws .paw-4 { left: 74%; animation-duration: 18s; animation-delay: 2s; font-size: 2.2rem; }
+.floating-paws .paw-5 { left: 89%; animation-duration: 12s; animation-delay: 6s; font-size: 1.5rem; }
+
+@keyframes floatPawsUp {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.85);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(-115vh) rotate(35deg) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Tarjetas Glassmorphism */
+.welcome-glass-card {
+  background: rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, border-color 0.3s ease;
+}
+
+.welcome-glass-card:hover {
+  transform: translateY(-6px) scale(1.04);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 107, 53, 0.65);
+}
+
+/* Animación flotante del Isotipo */
+.welcome-logo-float {
+  animation: logoBobbing 3.6s ease-in-out infinite, welcomeFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes logoBobbing {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Entrada escalonada (Stagger) */
+.welcome-anim-1 { animation: welcomeFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
+.welcome-anim-2 { animation: welcomeFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
+.welcome-anim-3 { animation: welcomeFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both; }
+.welcome-anim-4 { animation: welcomeFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.40s both; }
+.welcome-anim-5 { animation: welcomeFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both; }
+
+@keyframes welcomeFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Micro-interacción en botones */
+.welcome-btn-glow {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.welcome-btn-glow:hover {
+  transform: translateY(-3px) scale(1.02);
 }

@@ -458,6 +458,7 @@ function initApp() {
   renderApp();
   initMap();
 
+  // Si hay sesión activa va al inicio; caso contrario muestra siempre la portada de presentación
   if (AppState.currentUser && AppState.currentUser.isLogged) {
     navigateTo('home');
   } else {
@@ -472,9 +473,28 @@ function loadFromStorage() {
       AppState.usersDb = JSON.parse(savedUsersDb);
     }
 
+    // Garantizar que las cuentas demo mantengan sus roles originales
+    const demoVet = AppState.usersDb.find(u => u.email === 'veterinaria@mrpatitas.com');
+    if (demoVet) {
+      demoVet.role = 'veterinario';
+      demoVet.accountRole = 'veterinario';
+      demoVet.status = 'approved';
+    }
+
+    const demoProv = AppState.usersDb.find(u => u.email === 'proveedor@mrpatitas.com');
+    if (demoProv) {
+      demoProv.role = 'proveedor';
+      demoProv.accountRole = 'proveedor';
+      demoProv.status = 'approved';
+    }
+
     const savedUser = localStorage.getItem('mrpatitas_user');
     if (savedUser) {
       AppState.currentUser = JSON.parse(savedUser);
+      if (AppState.currentUser.email === 'veterinaria@mrpatitas.com') {
+        AppState.currentUser.role = 'veterinario';
+        AppState.currentUser.accountRole = 'veterinario';
+      }
       if (AppState.currentUser.role) {
         AppState.userRole = AppState.currentUser.role;
       }
@@ -555,6 +575,7 @@ window.navigateTo = function(viewName, params = {}) {
 
   const targetView = document.getElementById(`view-${viewName}`);
   if (targetView) {
+    targetView.classList.remove('hidden');
     targetView.classList.add('active');
     targetView.style.display = viewName === 'welcome' ? 'flex' : 'block';
   }
@@ -637,17 +658,22 @@ window.handleGeneralPublish = function(defaultType = 'lost') {
 window.handlePublishMarketplace = function() {
   requireAuth(() => {
     const realRole = AppState.currentUser.accountRole || AppState.currentUser.role;
+    const isServicesTabActive = !document.getElementById('marketViewServices')?.classList.contains('hidden');
 
     if (realRole === 'vecino') {
       showToast('Las cuentas de Vecino pueden publicar mascotas perdidas, encontradas y adopciones. Para publicar en Marketplace necesitás cuenta de Proveedor o Veterinario.', 'error');
       return;
     }
 
-    openPublishMarketplaceModal(realRole);
+    if (isServicesTabActive && realRole !== 'veterinario') {
+      showToast('Solo las cuentas de Veterinario verificado pueden publicar servicios y turnos.', 'error');
+      return;
+    }
+
+    openPublishMarketplaceModal(realRole, isServicesTabActive ? 'service' : 'product');
   }, 'Para publicar en el Marketplace local, iniciá sesión con cuenta de Proveedor o Veterinario.');
 };
-
-window.openPublishMarketplaceModal = function(role = 'proveedor') {
+window.openPublishMarketplaceModal = function(role = 'proveedor', defaultKind = 'product') {
   const isVet = role === 'veterinario';
   let modal = document.getElementById('publishMarketplaceModal');
   if (modal) modal.remove();
@@ -743,9 +769,19 @@ window.openPublishMarketplaceModal = function(role = 'proveedor') {
     </div>
   `;
   document.body.appendChild(modal);
+
+  if (isVet && defaultKind === 'service') {
+    switchMpPublishType('service');
+  }
 };
 
 window.switchMpPublishType = function(kind) {
+  const realRole = AppState.currentUser?.accountRole || AppState.currentUser?.role;
+  if (kind === 'service' && realRole !== 'veterinario') {
+    showToast('Solo las cuentas de Veterinario pueden ofrecer servicios o turnos.', 'error');
+    return;
+  }
+
   document.getElementById('mpPublishKind').value = kind;
   const btnP = document.getElementById('mpTypeBtnProduct');
   const btnS = document.getElementById('mpTypeBtnService');
@@ -756,21 +792,21 @@ window.switchMpPublishType = function(kind) {
   const priceLbl = document.getElementById('mpPriceLabel');
 
   if (kind === 'product') {
-    btnP.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-white text-slate-900 shadow-xs transition';
-    btnS.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
-    imgW.classList.remove('hidden');
-    catCol.classList.remove('hidden');
-    zoneCol.classList.add('hidden');
-    titleLbl.textContent = 'Nombre del producto *';
-    priceLbl.textContent = 'Precio ($) *';
+    if (btnP) btnP.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-white text-slate-900 shadow-xs transition';
+    if (btnS) btnS.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
+    if (imgW) imgW.classList.remove('hidden');
+    if (catCol) catCol.classList.remove('hidden');
+    if (zoneCol) zoneCol.classList.add('hidden');
+    if (titleLbl) titleLbl.textContent = 'Nombre del producto *';
+    if (priceLbl) priceLbl.textContent = 'Precio ($) *';
   } else {
-    btnS.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-purple-600 text-white shadow-xs transition';
-    btnP.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
-    imgW.classList.add('hidden');
-    catCol.classList.add('hidden');
-    zoneCol.classList.remove('hidden');
-    titleLbl.textContent = 'Nombre del servicio veterinario *';
-    priceLbl.textContent = 'Tarifa consulta / turno ($) *';
+    if (btnS) btnS.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-purple-600 text-white shadow-xs transition';
+    if (btnP) btnP.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
+    if (imgW) imgW.classList.add('hidden');
+    if (catCol) catCol.classList.add('hidden');
+    if (zoneCol) zoneCol.classList.remove('hidden');
+    if (titleLbl) titleLbl.textContent = 'Nombre del servicio veterinario *';
+    if (priceLbl) priceLbl.textContent = 'Tarifa consulta / turno ($) *';
   }
 };
 
@@ -801,7 +837,20 @@ window.closePublishMarketplaceModal = function() {
 
 window.submitMarketplaceItem = function(e) {
   e.preventDefault();
+  const realRole = AppState.currentUser?.accountRole || AppState.currentUser?.role;
+
+  if (!realRole || realRole === 'vecino') {
+    showToast('Tu cuenta no tiene permisos para publicar en el Marketplace.', 'error');
+    return;
+  }
+
   const kind = document.getElementById('mpPublishKind').value;
+
+  if (kind === 'service' && realRole !== 'veterinario') {
+    showToast('Solo las cuentas de Veterinario verificado pueden publicar servicios o turnos.', 'error');
+    return;
+  }
+
   const title = document.getElementById('mpProdTitle').value.trim();
   const price = Number(document.getElementById('mpProdPrice').value) || 0;
   const vendor = document.getElementById('mpProdVendor').value.trim();
@@ -1120,14 +1169,12 @@ window.handleModalRegister = function(e) {
   AppState.usersDb.push(newUser);
   saveToStorage();
 
-  // Si es Veterinario, frena el ingreso automático y deja la solicitud pendiente de verificación
   if (role === 'veterinario') {
     closeAuthModal();
     showToast('Solicitud enviada a Lucila y Eliana. Te habilitaremos tras verificar tu matrícula.', 'info');
     return;
   }
 
-  // Vecino o Proveedor ingresan de forma automática
   AppState.currentUser = { ...newUser, isLogged: true };
   AppState.userRole = role;
   saveToStorage();
@@ -1150,8 +1197,8 @@ window.logout = function() {
   AppState.userRole = 'vecino';
   saveToStorage();
   updateHeaderUserPill();
-  showToast('Has cerrado sesión. Ahora navegás como Invitado.', 'info');
-  navigateTo('home');
+  showToast('Has cerrado sesión.', 'info');
+  navigateTo('welcome');
 };
 
 function updateHeaderUserPill() {
@@ -1236,7 +1283,6 @@ function renderPetCards() {
   const container = document.getElementById('petListContainer');
   if (!container) return;
 
-  // Ocultar mascotas de usuarios que tengan la cuenta deshabilitada temporalmente
   let filtered = AppState.pets.filter(p => !isUserDisabledByEmail(p.ownerEmail));
 
   if (AppState.selectedCategory === 'lost') {
@@ -2390,7 +2436,7 @@ window.executeAccountAction = function(actionType) {
     closeAccountActionModal();
     updateHeaderUserPill();
     renderPetCards();
-    navigateTo('home');
+    navigateTo('welcome');
     showToast('Tu cuenta fue deshabilitada. Tus datos están guardados y se reactivará al volver a iniciar sesión.', 'info');
 
   } else if (actionType === 'delete') {
@@ -2409,7 +2455,7 @@ window.executeAccountAction = function(actionType) {
     updateHeaderUserPill();
     updateCartBadge();
     renderPetCards();
-    navigateTo('home');
+    navigateTo('welcome');
     showToast('Tu cuenta y todos tus datos fueron eliminados definitivamente.', 'success');
   }
 };
@@ -2728,3 +2774,346 @@ function initTheme() {
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
+
+// ========================================================
+// LÓGICA COMPLETA DE CARRITO Y CHECKOUT (RÍO CUARTO)
+// ========================================================
+let activeCartCoupon = null;
+const FREE_SHIPPING_THRESHOLD = 35000;
+const BASE_SHIPPING_COST = 2500;
+
+window.addToCart = function(productId) {
+  const product = AppState.products.find(p => p.id === productId);
+  if (!product) return;
+
+  if (product.stock !== undefined && product.stock <= 0) {
+    showToast('Este producto no tiene stock disponible en este momento.', 'error');
+    return;
+  }
+
+  const existing = AppState.cart.find(item => item.id === productId);
+  if (existing) {
+    if (product.stock !== undefined && existing.qty >= product.stock) {
+      showToast(`Stock máximo alcanzado (${product.stock} unidades).`, 'error');
+      return;
+    }
+    existing.qty += 1;
+  } else {
+    AppState.cart.push({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      vendor: product.vendor || 'Comercio Local',
+      image: product.image || 'assets/logo.png',
+      qty: 1
+    });
+  }
+
+  saveToStorage();
+  updateCartBadge();
+  showToast(`"${product.title}" agregado al carrito 🛍️`, 'success');
+};
+
+window.changeCartItemQty = function(productId, delta) {
+  const itemIndex = AppState.cart.findIndex(i => i.id === productId);
+  if (itemIndex === -1) return;
+
+  const product = AppState.products.find(p => p.id === productId);
+  const newQty = AppState.cart[itemIndex].qty + delta;
+
+  if (newQty <= 0) {
+    AppState.cart.splice(itemIndex, 1);
+  } else {
+    if (product && product.stock !== undefined && newQty > product.stock) {
+      showToast(`Solo quedan ${product.stock} unidades disponibles.`, 'error');
+      return;
+    }
+    AppState.cart[itemIndex].qty = newQty;
+  }
+
+  saveToStorage();
+  updateCartBadge();
+  renderCart();
+};
+
+window.removeFromCart = function(productId) {
+  AppState.cart = AppState.cart.filter(i => i.id !== productId);
+  if (AppState.cart.length === 0) activeCartCoupon = null;
+  saveToStorage();
+  updateCartBadge();
+  renderCart();
+};
+
+window.clearCart = function() {
+  AppState.cart = [];
+  activeCartCoupon = null;
+  saveToStorage();
+  updateCartBadge();
+  renderCart();
+  showToast('Carrito vaciado.', 'info');
+};
+
+window.applyCartCoupon = function() {
+  const input = document.getElementById('cartCouponInput');
+  const code = (input?.value || '').trim().toUpperCase();
+
+  if (code === 'PATITAS10' || code === 'RIOCUARTO') {
+    activeCartCoupon = code;
+    showToast('¡Cupón aplicado! 10% de descuento en tu compra 🎉', 'success');
+    renderCart();
+  } else {
+    activeCartCoupon = null;
+    showToast('Cupón inválido. Probá con PATITAS10', 'error');
+    renderCart();
+  }
+};
+
+function calculateCartTotals() {
+  const subtotal = AppState.cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+  const discount = activeCartCoupon ? Math.round(subtotal * 0.10) : 0;
+  const afterDiscount = subtotal - discount;
+  const isFreeShipping = afterDiscount >= FREE_SHIPPING_THRESHOLD || subtotal === 0;
+  const shipping = isFreeShipping ? 0 : BASE_SHIPPING_COST;
+  const total = afterDiscount + shipping;
+
+  return { subtotal, discount, shipping, total, isFreeShipping };
+}
+
+window.updateCartBadge = function() {
+  const badge = document.getElementById('cartCountBadge');
+  if (!badge) return;
+  const totalUnits = AppState.cart.reduce((sum, item) => sum + item.qty, 0);
+  if (totalUnits > 0) {
+    badge.textContent = totalUnits;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+};
+
+window.renderCart = function() {
+  const container = document.getElementById('cartItemsContainer');
+  const clearBtn = document.getElementById('clearCartBtn');
+  const shippingBar = document.getElementById('freeShippingBarWrapper');
+  const couponBox = document.getElementById('cartCouponBox');
+  const summaryBox = document.getElementById('cartSummaryBox');
+  const checkoutBtn = document.getElementById('cartCheckoutBtn');
+
+  if (!container) return;
+
+  if (AppState.cart.length === 0) {
+    clearBtn?.classList.add('hidden');
+    shippingBar?.classList.add('hidden');
+    couponBox?.classList.add('hidden');
+    summaryBox?.classList.add('hidden');
+    checkoutBtn?.classList.add('hidden');
+
+    container.innerHTML = `
+      <div class="py-8 text-center space-y-2">
+        <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-cart-arrow-down"></i>
+        </div>
+        <p class="font-heading font-bold text-slate-700 text-sm">Tu carrito está vacío</p>
+        <p class="text-xs text-slate-400 max-w-xs mx-auto">Explorá alimentos, accesorios y productos de comercios locales de Río Cuarto.</p>
+      </div>
+    `;
+    return;
+  }
+
+  clearBtn?.classList.remove('hidden');
+  shippingBar?.classList.remove('hidden');
+  couponBox?.classList.remove('hidden');
+  summaryBox?.classList.remove('hidden');
+  checkoutBtn?.classList.remove('hidden');
+
+  container.innerHTML = AppState.cart.map(item => `
+    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+      <img src="${item.image}" alt="${item.title}" class="w-14 h-14 rounded-xl object-contain bg-white border border-slate-200 p-1 shrink-0">
+      <div class="flex-1 min-w-0">
+        <h4 class="font-heading font-bold text-xs text-slate-900 truncate">${item.title}</h4>
+        <span class="text-[10px] text-slate-400 block truncate">${item.vendor}</span>
+        <span class="font-heading font-extrabold text-xs text-brand-600 block mt-0.5">$${(item.price * item.qty).toLocaleString('es-AR')}</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl p-1">
+        <button type="button" onclick="changeCartItemQty('${item.id}', -1)" class="w-6 h-6 rounded-lg hover:bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center">-</button>
+        <span class="text-xs font-bold text-slate-800 w-4 text-center">${item.qty}</span>
+        <button type="button" onclick="changeCartItemQty('${item.id}', 1)" class="w-6 h-6 rounded-lg hover:bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center">+</button>
+      </div>
+      <button type="button" onclick="removeFromCart('${item.id}')" class="text-slate-400 hover:text-red-500 p-1 transition" title="Eliminar">
+        <i class="fa-solid fa-trash-can text-xs"></i>
+      </button>
+    </div>
+  `).join('');
+
+  const { subtotal, discount, shipping, total, isFreeShipping } = calculateCartTotals();
+
+  // Actualizar barra de envío gratis
+  const pct = Math.min(100, Math.round(((subtotal - discount) / FREE_SHIPPING_THRESHOLD) * 100));
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - (subtotal - discount));
+  document.getElementById('freeShippingProgress').style.width = `${pct}%`;
+  document.getElementById('freeShippingPercent').textContent = `${pct}%`;
+  document.getElementById('freeShippingText').textContent = isFreeShipping
+    ? '🎉 ¡Tenés ENVÍO GRATIS en Río Cuarto!'
+    : `🚚 Sumá $${remaining.toLocaleString('es-AR')} más para envío gratis`;
+
+  document.getElementById('cartSubtotalLabel').textContent = `$${subtotal.toLocaleString('es-AR')}`;
+  document.getElementById('cartShippingLabel').textContent = isFreeShipping ? 'GRATIS' : `$${shipping.toLocaleString('es-AR')}`;
+  document.getElementById('cartTotalLabel').textContent = `$${total.toLocaleString('es-AR')}`;
+
+  const discountRow = document.getElementById('cartDiscountRow');
+  if (discount > 0) {
+    discountRow.classList.remove('hidden');
+    document.getElementById('cartDiscountLabel').textContent = `-$${discount.toLocaleString('es-AR')}`;
+  } else {
+    discountRow.classList.add('hidden');
+  }
+};
+
+window.openCartModal = function() {
+  renderCart();
+  const modal = document.getElementById('cartModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+};
+
+window.closeCartModal = function() {
+  const modal = document.getElementById('cartModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+};
+
+window.startCheckout = function() {
+  if (AppState.cart.length === 0) return;
+
+  requireAuth(() => {
+    closeCartModal();
+
+    // Autocompletar datos del usuario logueado
+    const user = AppState.currentUser;
+    if (user) {
+      document.getElementById('chkCustomerName').value = user.name || '';
+      document.getElementById('chkCustomerPhone').value = user.phone || '';
+      if (user.address) document.getElementById('chkAddress').value = user.address;
+      if (user.barrio) document.getElementById('chkBarrio').value = user.barrio;
+    }
+
+    updateCheckoutDynamicFields();
+    const modal = document.getElementById('checkoutModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }, 'Iniciá sesión para coordinar el envío y pago de tu pedido.');
+};
+
+window.backToCartFromCheckout = function() {
+  closeCheckoutModal();
+  openCartModal();
+};
+
+window.closeCheckoutModal = function() {
+  const modal = document.getElementById('checkoutModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+};
+
+window.updateCheckoutDynamicFields = function() {
+  const delivery = document.getElementById('chkDeliveryMethod').value;
+  const payment = document.getElementById('chkPaymentMethod').value;
+  const addrBox = document.getElementById('chkAddressWrapper');
+  const addrInput = document.getElementById('chkAddress');
+  const payBox = document.getElementById('chkPaymentDetailsBox');
+
+  const { subtotal, discount, shipping } = calculateCartTotals();
+  const finalShipping = delivery === 'pickup' ? 0 : shipping;
+  const finalTotal = (subtotal - discount) + finalShipping;
+
+  if (delivery === 'pickup') {
+    addrBox.classList.add('hidden');
+    addrInput.required = false;
+    document.getElementById('chkSummaryNote').textContent = 'Retiro sin cargo en local adherido';
+  } else {
+    addrBox.classList.remove('hidden');
+    addrInput.required = true;
+    document.getElementById('chkSummaryNote').textContent = finalShipping === 0
+      ? 'Envío a domicilio GRATIS'
+      : `Incluye envío local ($${finalShipping.toLocaleString('es-AR')})`;
+  }
+
+  if (payment === 'mercadopago') {
+    payBox.innerHTML = `
+      <p class="font-semibold">Alias oficial: <span class="font-mono bg-white px-2 py-0.5 rounded border border-blue-200 select-all">MRPATITAS.RIOCUARTO</span></p>
+      <p class="text-[11px] text-blue-700">Podés abonar por transferencia o QR al confirmar.</p>
+    `;
+  } else if (payment === 'card') {
+    payBox.innerHTML = `
+      <div class="grid grid-cols-2 gap-2">
+        <input type="text" required maxlength="19" placeholder="Número de tarjeta" class="col-span-2 px-3 py-2 rounded-xl border border-blue-200 bg-white text-xs">
+        <input type="text" required maxlength="5" placeholder="MM/AA" class="px-3 py-2 rounded-xl border border-blue-200 bg-white text-xs">
+        <input type="text" required maxlength="4" placeholder="CVV" class="px-3 py-2 rounded-xl border border-blue-200 bg-white text-xs">
+      </div>
+    `;
+  } else {
+    payBox.innerHTML = `
+      <p class="font-semibold">💵 Pago en efectivo al recibir o retirar</p>
+      <input type="text" id="chkCashChange" placeholder="¿Necesitás cambio? Indicá con cuánto abonás" class="w-full px-3 py-2 rounded-xl border border-blue-200 bg-white text-xs">
+    `;
+  }
+
+  document.getElementById('chkFinalTotal').textContent = `$${finalTotal.toLocaleString('es-AR')}`;
+};
+
+window.processCheckoutOrder = function(e) {
+  e.preventDefault();
+
+  const customerName = document.getElementById('chkCustomerName').value.trim();
+  const delivery = document.getElementById('chkDeliveryMethod').value;
+  const payment = document.getElementById('chkPaymentMethod').value;
+  const address = document.getElementById('chkAddress').value.trim();
+  const barrio = document.getElementById('chkBarrio').value;
+
+  const { subtotal, discount, shipping } = calculateCartTotals();
+  const finalShipping = delivery === 'pickup' ? 0 : shipping;
+  const finalTotal = (subtotal - discount) + finalShipping;
+
+  // Descontar stock real de los productos comprados
+  AppState.cart.forEach(cartItem => {
+    const prod = AppState.products.find(p => p.id === cartItem.id);
+    if (prod && typeof prod.stock === 'number') {
+      prod.stock = Math.max(0, prod.stock - cartItem.qty);
+    }
+  });
+
+  const orderCode = 'MP-' + Math.floor(100000 + Math.random() * 900000);
+  const payLabels = {
+    mercadopago: 'Mercado Pago / Transferencia',
+    card: 'Tarjeta de Crédito / Débito',
+    cash: 'Efectivo'
+  };
+
+  document.getElementById('orderIdSpan').textContent = orderCode;
+  document.getElementById('orderReceiptDetails').innerHTML = `
+    <p><strong>Cliente:</strong> ${customerName}</p>
+    <p><strong>Entrega:</strong> ${delivery === 'pickup' ? 'Retiro por local adherido' : `Envío a ${address} (${barrio})`}</p>
+    <p><strong>Medio de pago:</strong> ${payLabels[payment]}</p>
+    <p class="pt-1.5 border-t border-slate-200 font-bold text-slate-900 flex justify-between">
+      <span>Total abonado:</span>
+      <span class="text-brand-600">$${finalTotal.toLocaleString('es-AR')}</span>
+    </p>
+  `;
+
+  AppState.cart = [];
+  activeCartCoupon = null;
+  saveToStorage();
+  updateCartBadge();
+  if (typeof renderMarketplace === 'function') renderMarketplace();
+
+  closeCheckoutModal();
+  const successModal = document.getElementById('orderSuccessModal');
+  successModal.classList.remove('hidden');
+  successModal.classList.add('flex');
+};
+
+window.closeOrderSuccessModal = function() {
+  const modal = document.getElementById('orderSuccessModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+};

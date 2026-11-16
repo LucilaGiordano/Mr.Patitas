@@ -60,79 +60,106 @@
   <!-- ======================================================== -->
   <!-- VISTA 0: PANTALLA DE BIENVENIDA / SPLASH LANDING         -->
   <!-- ======================================================== -->
-  <div id="view-welcome" class="spa-view active fixed inset-0 z-50 bg-gradient-to-br from-brand-50 via-white to-amber-50/40 flex flex-col justify-between p-6 overflow-y-auto">
+  <div id="view-welcome" class="spa-view active fixed inset-0 z-[60] flex flex-col justify-between p-6 overflow-y-auto">
     
-    <div class="flex items-center justify-between max-w-6xl mx-auto w-full pt-4">
-      <span class="text-xs font-mono font-semibold text-slate-500 bg-white/95 backdrop-blur px-3.5 py-1 rounded-full border border-slate-200 shadow-xs flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+    <!-- Fondo inmersivo a pantalla completa -->
+    <div class="welcome-bg-wrapper">
+      <!-- Opción A: Imagen HD con movimiento cinematográfico suave -->
+      <img 
+        src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1920&q=85" 
+        alt="Mascotas felices en Río Cuarto" 
+        class="welcome-bg-media"
+      />
+      <!-- Opción B (Si tenés un video local en assets/bg-pets.mp4, descomentá esto y borrá la <img> de arriba):
+      <video autoplay muted loop playsinline class="welcome-bg-media">
+        <source src="assets/bg-pets.mp4" type="video/mp4">
+      </video>
+      -->
+      <div class="welcome-bg-overlay"></div>
+
+      <!-- Partículas / huellitas animadas flotantes -->
+      <div class="floating-paws" aria-hidden="true">
+        <i class="fa-solid fa-paw paw-1"></i>
+        <i class="fa-solid fa-paw paw-2"></i>
+        <i class="fa-solid fa-heart paw-3"></i>
+        <i class="fa-solid fa-paw paw-4"></i>
+        <i class="fa-solid fa-paw paw-5"></i>
+      </div>
+    </div>
+
+    <!-- Barra superior del Welcome -->
+    <div class="relative z-10 flex items-center justify-between max-w-6xl mx-auto w-full pt-2 welcome-anim-1">
+      <span class="text-xs font-mono font-semibold text-white bg-white/15 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/25 shadow-lg flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
         Río Cuarto · Red Activa
       </span>
-      <span class="text-xs text-brand-600 font-heading font-bold">EFI Giordano & Tallone 2026</span>
+      <span class="text-xs text-brand-300 font-heading font-bold bg-slate-900/40 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15">
+        EFI Giordano & Tallone 2026
+      </span>
     </div>
 
     <!-- Contenido Central del Welcome -->
-    <div class="max-w-3xl mx-auto w-full text-center my-auto py-10">
+    <div class="relative z-10 max-w-3xl mx-auto w-full text-center my-auto py-8">
       
-      <!-- Isotipo Oficial con Paw Badge -->
-      <div class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-6">
-        <div class="w-full h-full rounded-3xl bg-white shadow-2xl shadow-brand-500/20 p-4 flex items-center justify-center border-4 border-brand-500/20 transform hover:scale-105 transition-transform duration-300">
+      <!-- Isotipo Oficial con Paw Badge y animación flotante -->
+      <div class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-6 welcome-logo-float">
+        <div class="w-full h-full rounded-3xl bg-white/95 backdrop-blur-md shadow-2xl shadow-brand-500/40 p-4 flex items-center justify-center border-2 border-white/60 transform hover:scale-105 transition-transform duration-300">
           <img src="assets/Isotipo2.png" alt="Isotipo Mr. Patitas" class="w-full h-full object-contain">
         </div>
-        <div class="absolute -bottom-2 -right-2 bg-brand-500 text-white rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shadow-lg text-base">
+        <div class="absolute -bottom-2 -right-2 bg-brand-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg shadow-brand-500/50 text-base animate-bounce">
           🐾
         </div>
       </div>
 
-      <h1 class="font-heading font-extrabold text-3xl sm:text-5xl text-slate-900 tracking-tight leading-tight">
+      <h1 class="welcome-anim-2 font-heading font-extrabold text-4xl sm:text-6xl text-white tracking-tight leading-tight drop-shadow-lg">
         Mr. Patitas
       </h1>
-      <p class="font-heading font-semibold text-brand-600 text-base sm:text-xl mt-1.5">
+      <p class="welcome-anim-2 font-heading font-semibold text-brand-400 text-base sm:text-xl mt-2 drop-shadow">
         Mascota Local · Red Comunitaria
       </p>
 
-      <p class="text-sm sm:text-base text-slate-600 mt-4 leading-relaxed max-w-lg mx-auto">
+      <p class="welcome-anim-3 text-sm sm:text-base text-slate-100/90 mt-4 leading-relaxed max-w-lg mx-auto drop-shadow">
         Conectamos a la comunidad de Río Cuarto para que las mascotas perdidas vuelvan rápidamente a sus hogares, promoviendo la adopción responsable y el comercio de proximidad.
       </p>
 
-      <!-- 3 Pilares Resumidos -->
-      <div class="grid grid-cols-3 gap-3 sm:gap-4 mt-8 max-w-lg mx-auto text-center">
-        <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-200/80 shadow-xs">
-          <span class="text-2xl">🚨</span>
-          <span class="text-xs font-heading font-bold text-slate-800 block mt-1">Alertas en Mapa</span>
+      <!-- 3 Pilares Resumidos (Glassmorphism) -->
+      <div class="welcome-anim-4 grid grid-cols-3 gap-3 sm:gap-4 mt-8 max-w-lg mx-auto text-center">
+        <div class="welcome-glass-card p-4 rounded-2xl">
+          <span class="text-2xl sm:text-3xl block">🚨</span>
+          <span class="text-xs font-heading font-bold text-white block mt-1.5">Alertas en Mapa</span>
         </div>
-        <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-200/80 shadow-xs">
-          <span class="text-2xl">💛</span>
-          <span class="text-xs font-heading font-bold text-slate-800 block mt-1">Adopciones</span>
+        <div class="welcome-glass-card p-4 rounded-2xl">
+          <span class="text-2xl sm:text-3xl block">💛</span>
+          <span class="text-xs font-heading font-bold text-white block mt-1.5">Adopciones</span>
         </div>
-        <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-200/80 shadow-xs">
-          <span class="text-2xl">🛍️</span>
-          <span class="text-xs font-heading font-bold text-slate-800 block mt-1">Marketplace</span>
+        <div class="welcome-glass-card p-4 rounded-2xl">
+          <span class="text-2xl sm:text-3xl block">🛍️</span>
+          <span class="text-xs font-heading font-bold text-white block mt-1.5">Marketplace</span>
         </div>
       </div>
     </div>
 
     <!-- Botones de Entrada Principal -->
-    <div class="max-w-md mx-auto w-full space-y-3 pb-6">
+    <div class="relative z-10 max-w-md mx-auto w-full space-y-3 pb-4 welcome-anim-5">
       <div class="grid grid-cols-2 gap-3">
-        <button onclick="openAuthModal('login')" class="py-3.5 px-4 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-sm rounded-2xl shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+        <button onclick="openAuthModal('login')" class="welcome-btn-glow py-3.5 px-4 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-sm rounded-2xl shadow-xl shadow-brand-500/35 transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
         </button>
-        <button onclick="openAuthModal('register')" class="py-3.5 px-4 bg-white hover:bg-slate-50 text-slate-800 font-heading font-bold text-sm rounded-2xl border border-slate-200 shadow-xs transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-user-plus"></i> Registrarse
+        <button onclick="openAuthModal('register')" class="welcome-btn-glow py-3.5 px-4 bg-white/95 hover:bg-white text-slate-900 font-heading font-bold text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-user-plus text-brand-500"></i> Registrarse
         </button>
       </div>
 
-      <button onclick="navigateTo('home')" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-heading font-semibold text-sm rounded-2xl shadow-md transition flex items-center justify-center gap-2">
+      <button onclick="navigateTo('home')" class="welcome-btn-glow w-full py-3.5 bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md text-white font-heading font-semibold text-sm rounded-2xl border border-white/20 shadow-xl transition flex items-center justify-center gap-2">
         <span>Continuar como Invitado</span>
-        <i class="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+        <i class="fa-solid fa-arrow-right text-xs text-brand-400"></i>
       </button>
 
-      <p class="text-center text-[11px] text-slate-500 pt-1">
+      <p class="text-center text-[11px] text-slate-300/80 pt-1">
         Navegación libre por catálogo, detalles, mapa y marketplace.
       </p>
     </div>
   </div>
-
   <!-- ======================================================== -->
   <!-- BARRA DE NAVEGACIÓN SUPERIOR (DESKTOP & MOBILE HEADER)    -->
   <!-- ======================================================== -->
@@ -522,7 +549,7 @@
       
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-2xl bg-brand-50 border border-brand-200 p-1 flex items-center justify-center">
-          <img src="assets/logo.png" alt="Mr. Patitas" class="w-full h-full object-contain">
+          <img src="assets/Isotipo2.png" alt="Mr. Patitas" class="w-full h-full object-contain">
         </div>
         <div>
           <span class="font-heading font-bold text-slate-900 text-sm block">Mr. Patitas · Río Cuarto</span>
@@ -909,57 +936,178 @@
   </div>
 
   <!-- 4. MODAL CARRITO -->
-  <div id="cartModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+  <div id="cartModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-8 animate-modal-enter">
       <div class="flex items-center justify-between">
-        <h3 class="font-heading font-bold text-lg text-slate-900">Carrito Local</h3>
-        <button onclick="closeCartModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-brand-50 text-brand-500 border border-brand-100 flex items-center justify-center text-base">
+            <i class="fa-solid fa-bag-shopping"></i>
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-base text-slate-900 leading-tight">Tu Carrito Local</h3>
+            <span id="cartHeaderSubtitle" class="text-[11px] text-slate-400">Comercios de Río Cuarto</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="clearCartBtn" onclick="clearCart()" class="hidden px-2.5 py-1 rounded-lg text-[11px] font-semibold text-red-500 hover:bg-red-50 transition">
+            Vaciar
+          </button>
+          <button onclick="closeCartModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
       </div>
-      <div id="cartItemsContainer" class="space-y-2 max-h-64 overflow-y-auto"></div>
-      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-        <span class="text-xs text-slate-500">Total:</span>
-        <span id="cartTotalLabel" class="font-heading font-extrabold text-xl text-slate-900">$0</span>
+
+      <!-- Barra de progreso para envío gratis -->
+      <div id="freeShippingBarWrapper" class="hidden p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-800">
+          <span id="freeShippingText">🚚 Sumá $35.000 para envío gratis</span>
+          <span id="freeShippingPercent">0%</span>
+        </div>
+        <div class="w-full h-1.5 bg-emerald-200/70 rounded-full overflow-hidden">
+          <div id="freeShippingProgress" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
       </div>
-      <button onclick="startCheckout()" class="w-full py-3.5 bg-brand-500 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">Iniciar Compra Segura</button>
+
+      <!-- Listado de productos -->
+      <div id="cartItemsContainer" class="space-y-2.5 max-h-64 overflow-y-auto pr-1"></div>
+
+      <!-- Cupón promocional -->
+      <div id="cartCouponBox" class="hidden flex gap-2">
+        <input type="text" id="cartCouponInput" placeholder="Cupón (ej: PATITAS10)" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs uppercase">
+        <button type="button" onclick="applyCartCoupon()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-heading font-semibold text-xs transition">
+          Aplicar
+        </button>
+      </div>
+
+      <!-- Desglose de importes -->
+      <div id="cartSummaryBox" class="pt-3 border-t border-slate-100 space-y-1.5 text-xs">
+        <div class="flex justify-between text-slate-500">
+          <span>Subtotal productos</span>
+          <span id="cartSubtotalLabel" class="font-semibold text-slate-700">$0</span>
+        </div>
+        <div id="cartDiscountRow" class="hidden flex justify-between text-emerald-600 font-semibold">
+          <span>Descuento cupón (10%)</span>
+          <span id="cartDiscountLabel">-$0</span>
+        </div>
+        <div class="flex justify-between text-slate-500">
+          <span>Envío estimado (Río Cuarto)</span>
+          <span id="cartShippingLabel" class="font-semibold text-slate-700">$0</span>
+        </div>
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span class="font-heading font-bold text-slate-800 text-sm">Total a pagar:</span>
+          <span id="cartTotalLabel" class="font-heading font-extrabold text-xl text-brand-600">$0</span>
+        </div>
+      </div>
+
+      <button id="cartCheckoutBtn" onclick="startCheckout()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-xl shadow-md shadow-brand-500/25 transition flex items-center justify-center gap-2">
+        <span>Continuar al Pago</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
     </div>
   </div>
 
   <!-- 5. MODAL CHECKOUT -->
-  <div id="checkoutModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+  <div id="checkoutModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-8 animate-modal-enter">
       <div class="flex items-center justify-between">
-        <h3 class="font-heading font-bold text-lg text-slate-900">Finalizar Compra</h3>
-        <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        <div>
+          <h3 class="font-heading font-bold text-lg text-slate-900">Finalizar Compra</h3>
+          <p class="text-[11px] text-slate-400">Completá los datos de entrega y pago</p>
+        </div>
+        <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <form id="checkoutForm" class="space-y-4 text-xs">
+
+      <form id="checkoutForm" onsubmit="processCheckoutOrder(event)" class="space-y-3.5 text-xs">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Nombre y Apellido *</label>
+            <input type="text" id="chkCustomerName" required placeholder="Ej. Lucila Tallone" class="w-full px-3 py-2.5 rounded-xl border border-slate-200">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">WhatsApp de contacto *</label>
+            <input type="tel" id="chkCustomerPhone" required placeholder="3584123456" class="w-full px-3 py-2.5 rounded-xl border border-slate-200">
+          </div>
+        </div>
+
         <div>
-          <label class="font-semibold text-slate-700 block mb-1">Entrega</label>
-          <select class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
-            <option>Envío a domicilio en Río Cuarto</option>
-            <option>Retiro por local adherido</option>
+          <label class="font-semibold text-slate-700 block mb-1">Modalidad de Entrega *</label>
+          <select id="chkDeliveryMethod" onchange="updateCheckoutDynamicFields()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold">
+            <option value="delivery">🛵 Envío a domicilio en Río Cuarto</option>
+            <option value="pickup">🏪 Retiro gratis por local adherido</option>
           </select>
         </div>
+
+        <!-- Campos condicionales de envío -->
+        <div id="chkAddressWrapper" class="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="col-span-2">
+            <label class="font-semibold text-slate-600 block mb-1">Calle y Altura *</label>
+            <input type="text" id="chkAddress" required placeholder="Ej. San Martín 450" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-600 block mb-1">Barrio *</label>
+            <select id="chkBarrio" class="w-full px-2.5 py-2 rounded-xl border border-slate-200 bg-white">
+              <option value="Centro">Centro</option>
+              <option value="Banda Norte">Banda Norte</option>
+              <option value="Alberdi">Alberdi</option>
+              <option value="Macrocentro">Macrocentro</option>
+              <option value="Sur">Sur</option>
+            </select>
+          </div>
+        </div>
+
         <div>
-          <label class="font-semibold text-slate-700 block mb-1">Pago</label>
-          <select class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
-            <option>Mercado Pago</option>
-            <option>Efectivo</option>
+          <label class="font-semibold text-slate-700 block mb-1">Medio de Pago *</label>
+          <select id="chkPaymentMethod" onchange="updateCheckoutDynamicFields()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold">
+            <option value="mercadopago">💳 Mercado Pago / Transferencia</option>
+            <option value="card">🏦 Tarjeta de Crédito / Débito</option>
+            <option value="cash">💵 Efectivo contra entrega</option>
           </select>
         </div>
-        <button type="submit" class="w-full py-3.5 bg-brand-500 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">Confirmar Pedido</button>
+
+        <!-- Detalles dinámicos según medio de pago -->
+        <div id="chkPaymentDetailsBox" class="p-3 rounded-2xl bg-blue-50/70 border border-blue-200 text-blue-900 space-y-2">
+          <p class="font-semibold">Alias oficial: <span class="font-mono bg-white px-2 py-0.5 rounded border border-blue-200 select-all">MRPATITAS.RIOCUARTO</span></p>
+          <p class="text-[11px] text-blue-700">Enviá el comprobante por WhatsApp al confirmar el pedido.</p>
+        </div>
+
+        <!-- Resumen final de pago -->
+        <div class="p-3.5 rounded-2xl bg-slate-900 text-white flex items-center justify-between">
+          <div>
+            <span class="text-[11px] text-slate-400 block">Total Final Confirmado</span>
+            <span id="chkSummaryNote" class="text-[11px] text-emerald-400">Incluye envío local</span>
+          </div>
+          <span id="chkFinalTotal" class="font-heading font-extrabold text-xl text-brand-400">$0</span>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="backToCartFromCheckout()" class="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-semibold text-xs transition">
+            ← Volver
+          </button>
+          <button type="submit" class="flex-1 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">
+            Confirmar Pedido
+          </button>
+        </div>
       </form>
     </div>
   </div>
 
   <!-- 6. MODAL ORDEN EXITOSA -->
   <div id="orderSuccessModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
-      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-3xl">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl animate-modal-enter">
+      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-3xl animate-bounce">
         <i class="fa-solid fa-circle-check"></i>
       </div>
-      <h3 class="font-heading font-extrabold text-xl text-slate-900">¡Pedido Confirmado!</h3>
-      <p class="text-xs text-slate-500">Código: <strong id="orderIdSpan" class="text-slate-800"></strong></p>
-      <button onclick="closeOrderSuccessModal()" class="w-full py-3 bg-slate-900 text-white font-heading font-bold text-xs rounded-xl transition">Volver a la Tienda</button>
+      <div>
+        <h3 class="font-heading font-extrabold text-xl text-slate-900">¡Pedido Confirmado!</h3>
+        <p class="text-xs text-slate-500 mt-1">Código de seguimiento: <strong id="orderIdSpan" class="font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded"></strong></p>
+      </div>
+      <div id="orderReceiptDetails" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-1.5 text-slate-600"></div>
+      <button onclick="closeOrderSuccessModal()" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-heading font-bold text-xs rounded-xl transition">
+        Volver a la Tienda
+      </button>
     </div>
   </div>
 
@@ -989,26 +1137,86 @@
     </div>
   </div>
 
-  <!-- 8. MODAL POSTULACIÓN ADOPCIÓN -->
-  <div id="adoptionFormModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+ <!-- 8. MODAL POSTULACIÓN ADOPCIÓN -->
+  <div id="adoptionFormModal" class="modal-container hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4 my-8 animate-modal-enter">
       <div class="flex items-center justify-between">
-        <h3 class="font-heading font-bold text-base text-slate-900">Postulación por <span id="adoptionModalPetName">Mascota</span></h3>
-        <button onclick="closeAdoptionFormModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center text-lg">
+            💛
+          </div>
+          <div>
+            <h3 class="font-heading font-bold text-base text-slate-900 leading-tight">
+              Postulación por <span id="adoptionModalPetName" class="text-purple-600">Mascota</span>
+            </h3>
+            <span class="text-[11px] text-slate-400">Evaluación de Adopción Responsable</span>
+          </div>
+        </div>
+        <button onclick="closeAdoptionFormModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
+
       <form id="adoptionApplicationForm" class="space-y-3 text-xs">
-        <div>
-          <label class="font-semibold text-slate-700 block mb-1">¿Espacio cerrado? *</label>
-          <select required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white">
-            <option>Sí, patio cerrado</option>
-            <option>Departamento con red</option>
-          </select>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Tipo de vivienda *</label>
+            <select id="adoptHousing" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white">
+              <option value="casa_patio">Casa con patio cerrado</option>
+              <option value="depto_red">Depto. con red / balcón seguro</option>
+              <option value="casa_sin_cerco">Casa sin cerco perimetral</option>
+              <option value="depto_sin_balcon">Departamento sin balcón</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Alquila / Propia *</label>
+            <select id="adoptOwnership" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white">
+              <option value="propia">Vivienda propia</option>
+              <option value="alquiler_apto">Alquiler (acepta mascotas)</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label class="font-semibold text-slate-700 block mb-1">WhatsApp *</label>
-          <input type="tel" required placeholder="3584123456" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">¿Otras mascotas? *</label>
+            <select id="adoptOtherPets" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white">
+              <option value="no">No tengo otras mascotas</option>
+              <option value="perros">Sí, perro/s sociable/s</option>
+              <option value="gatos">Sí, gato/s</option>
+              <option value="ambos">Sí, perros y gatos</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Horas solo por día *</label>
+            <select id="adoptAloneHours" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white">
+              <option value="menos_4">Menos de 4 hs</option>
+              <option value="4_a_6">Entre 4 y 6 hs</option>
+              <option value="mas_6">Más de 6 hs</option>
+            </select>
+          </div>
         </div>
-        <button type="submit" class="w-full py-3 bg-brand-500 text-white font-heading font-bold text-xs rounded-xl shadow-md transition">Enviar Postulación</button>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">WhatsApp de contacto *</label>
+          <input type="tel" id="adoptPhone" required placeholder="Ej. 3584123456" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200">
+        </div>
+
+        <div>
+          <label class="font-semibold text-slate-700 block mb-1">Contanos brevemente sobre tu hogar *</label>
+          <textarea id="adoptMotivation" rows="2" required placeholder="Quiénes viven en casa, experiencia previa con mascotas, veterinario de cabecera..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200"></textarea>
+        </div>
+
+        <label class="flex items-start gap-2.5 p-3 rounded-2xl bg-purple-50 border border-purple-100 cursor-pointer">
+          <input type="checkbox" required class="mt-0.5 accent-purple-600 rounded">
+          <span class="text-[11px] text-purple-900 leading-snug">
+            Me comprometo a brindar atención veterinaria, vacunación anual, castración obligatoria y seguimiento post-adopción.
+          </span>
+        </label>
+
+        <button type="submit" class="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-heading font-bold text-xs rounded-xl shadow-md shadow-purple-500/20 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i> Enviar Postulación Responsable
+        </button>
       </form>
     </div>
   </div>
