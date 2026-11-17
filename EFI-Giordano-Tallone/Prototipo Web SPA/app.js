@@ -658,13 +658,17 @@ window.handleGeneralPublish = function(defaultType = 'lost') {
 window.handlePublishMarketplace = function() {
   requireAuth(() => {
     const realRole = AppState.currentUser.accountRole || AppState.currentUser.role;
+<<<<<<< HEAD
     const isServicesTabActive = !document.getElementById('marketViewServices')?.classList.contains('hidden');
+=======
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
 
     if (realRole === 'vecino') {
       showToast('Las cuentas de Vecino pueden publicar mascotas perdidas, encontradas y adopciones. Para publicar en Marketplace necesitás cuenta de Proveedor o Veterinario.', 'error');
       return;
     }
 
+<<<<<<< HEAD
     if (isServicesTabActive && realRole !== 'veterinario') {
       showToast('Solo las cuentas de Veterinario verificado pueden publicar servicios y turnos.', 'error');
       return;
@@ -782,6 +786,111 @@ window.switchMpPublishType = function(kind) {
     return;
   }
 
+=======
+    openPublishMarketplaceModal(realRole);
+  }, 'Para publicar en el Marketplace local, iniciá sesión con cuenta de Proveedor o Veterinario.');
+};
+
+window.openPublishMarketplaceModal = function(role = 'proveedor') {
+  const isVet = role === 'veterinario';
+  let modal = document.getElementById('publishMarketplaceModal');
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = 'publishMarketplaceModal';
+  modal.className = 'modal-container fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-xs p-4 overflow-y-auto';
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4 my-auto">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-heading font-bold text-slate-900 dark:text-white text-lg">Publicar en Marketplace</h3>
+          <p class="text-xs text-slate-500">
+            ${isVet ? 'Perfil Veterinario verificado: Productos y Servicios habilitados' : 'Perfil Proveedor: Publicación de Productos habilitada'}
+          </p>
+        </div>
+        <button type="button" onclick="closePublishMarketplaceModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      ${isVet ? `
+        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+          <button type="button" id="mpTypeBtnProduct" onclick="switchMpPublishType('product')" class="py-2 rounded-lg text-xs font-heading font-bold bg-white text-slate-900 shadow-xs transition">
+            🛍️ Producto
+          </button>
+          <button type="button" id="mpTypeBtnService" onclick="switchMpPublishType('service')" class="py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition">
+            🩺 Servicio / Turno
+          </button>
+        </div>
+      ` : ''}
+
+      <form id="publishMarketplaceForm" onsubmit="submitMarketplaceItem(event)" class="space-y-3">
+        <input type="hidden" id="mpPublishKind" value="product">
+
+        <div id="mpImageWrapper">
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Foto del producto</label>
+          <label class="relative flex flex-col items-center justify-center w-full h-28 rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50 cursor-pointer overflow-hidden transition">
+            <div id="mpUploadPlaceholder" class="flex flex-col items-center justify-center text-slate-400 p-2 text-center">
+              <i class="fa-solid fa-camera text-lg mb-1 text-brand-500"></i>
+              <span class="text-xs font-medium text-slate-600">Tocá para subir una imagen</span>
+              <span class="text-[10px] text-slate-400">PNG, JPG o WEBP</span>
+            </div>
+            <img id="mpPreviewImg" src="" alt="Vista previa" class="hidden w-full h-full object-contain p-2">
+            <input id="mpProdImageInput" type="file" accept="image/*" onchange="previewMarketplaceImage(event)" class="hidden">
+          </label>
+        </div>
+
+        <div>
+          <label id="mpTitleLabel" class="block text-xs font-semibold text-slate-700 mb-1">Nombre del producto *</label>
+          <input id="mpProdTitle" type="text" required placeholder="Ej: Alimento Balanceado 15kg" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label id="mpPriceLabel" class="block text-xs font-semibold text-slate-700 mb-1">Precio ($) *</label>
+            <input id="mpProdPrice" type="number" required min="100" placeholder="15000" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+          </div>
+          <div id="mpCategoryCol">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Categoría</label>
+            <select id="mpProdCategory" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+              <option value="Alimento">Alimento</option>
+              <option value="Accesorios">Accesorios</option>
+              <option value="Confort">Confort</option>
+              <option value="Identificación">Identificación</option>
+            </select>
+          </div>
+          <div id="mpZoneCol" class="hidden">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Zona / Dirección</label>
+            <input id="mpServZone" type="text" placeholder="Ej: Centro, Río Cuarto" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Comercio / Clínica *</label>
+          <input id="mpProdVendor" type="text" required value="${AppState.currentUser?.businessName || AppState.currentUser?.name || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Descripción o prestaciones</label>
+          <textarea id="mpProdDesc" rows="2" placeholder="Detalles, horarios de atención o características..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs"></textarea>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closePublishMarketplaceModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-semibold text-xs transition">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-heading font-bold text-xs shadow-md transition">
+            Publicar Ahora
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
+};
+
+window.switchMpPublishType = function(kind) {
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   document.getElementById('mpPublishKind').value = kind;
   const btnP = document.getElementById('mpTypeBtnProduct');
   const btnS = document.getElementById('mpTypeBtnService');
@@ -792,6 +901,7 @@ window.switchMpPublishType = function(kind) {
   const priceLbl = document.getElementById('mpPriceLabel');
 
   if (kind === 'product') {
+<<<<<<< HEAD
     if (btnP) btnP.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-white text-slate-900 shadow-xs transition';
     if (btnS) btnS.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
     if (imgW) imgW.classList.remove('hidden');
@@ -807,6 +917,23 @@ window.switchMpPublishType = function(kind) {
     if (zoneCol) zoneCol.classList.remove('hidden');
     if (titleLbl) titleLbl.textContent = 'Nombre del servicio veterinario *';
     if (priceLbl) priceLbl.textContent = 'Tarifa consulta / turno ($) *';
+=======
+    btnP.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-white text-slate-900 shadow-xs transition';
+    btnS.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
+    imgW.classList.remove('hidden');
+    catCol.classList.remove('hidden');
+    zoneCol.classList.add('hidden');
+    titleLbl.textContent = 'Nombre del producto *';
+    priceLbl.textContent = 'Precio ($) *';
+  } else {
+    btnS.className = 'py-2 rounded-lg text-xs font-heading font-bold bg-purple-600 text-white shadow-xs transition';
+    btnP.className = 'py-2 rounded-lg text-xs font-heading font-semibold text-slate-600 transition';
+    imgW.classList.add('hidden');
+    catCol.classList.add('hidden');
+    zoneCol.classList.remove('hidden');
+    titleLbl.textContent = 'Nombre del servicio veterinario *';
+    priceLbl.textContent = 'Tarifa consulta / turno ($) *';
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   }
 };
 
@@ -837,6 +964,7 @@ window.closePublishMarketplaceModal = function() {
 
 window.submitMarketplaceItem = function(e) {
   e.preventDefault();
+<<<<<<< HEAD
   const realRole = AppState.currentUser?.accountRole || AppState.currentUser?.role;
 
   if (!realRole || realRole === 'vecino') {
@@ -851,6 +979,9 @@ window.submitMarketplaceItem = function(e) {
     return;
   }
 
+=======
+  const kind = document.getElementById('mpPublishKind').value;
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   const title = document.getElementById('mpProdTitle').value.trim();
   const price = Number(document.getElementById('mpProdPrice').value) || 0;
   const vendor = document.getElementById('mpProdVendor').value.trim();
@@ -1169,12 +1300,20 @@ window.handleModalRegister = function(e) {
   AppState.usersDb.push(newUser);
   saveToStorage();
 
+<<<<<<< HEAD
+=======
+  // Si es Veterinario, frena el ingreso automático y deja la solicitud pendiente de verificación
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   if (role === 'veterinario') {
     closeAuthModal();
     showToast('Solicitud enviada a Lucila y Eliana. Te habilitaremos tras verificar tu matrícula.', 'info');
     return;
   }
 
+<<<<<<< HEAD
+=======
+  // Vecino o Proveedor ingresan de forma automática
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   AppState.currentUser = { ...newUser, isLogged: true };
   AppState.userRole = role;
   saveToStorage();
@@ -1283,6 +1422,10 @@ function renderPetCards() {
   const container = document.getElementById('petListContainer');
   if (!container) return;
 
+<<<<<<< HEAD
+=======
+  // Ocultar mascotas de usuarios que tengan la cuenta deshabilitada temporalmente
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   let filtered = AppState.pets.filter(p => !isUserDisabledByEmail(p.ownerEmail));
 
   if (AppState.selectedCategory === 'lost') {
@@ -2436,7 +2579,11 @@ window.executeAccountAction = function(actionType) {
     closeAccountActionModal();
     updateHeaderUserPill();
     renderPetCards();
+<<<<<<< HEAD
     navigateTo('welcome');
+=======
+    navigateTo('home');
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
     showToast('Tu cuenta fue deshabilitada. Tus datos están guardados y se reactivará al volver a iniciar sesión.', 'info');
 
   } else if (actionType === 'delete') {
@@ -2455,7 +2602,11 @@ window.executeAccountAction = function(actionType) {
     updateHeaderUserPill();
     updateCartBadge();
     renderPetCards();
+<<<<<<< HEAD
     navigateTo('welcome');
+=======
+    navigateTo('home');
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
     showToast('Tu cuenta y todos tus datos fueron eliminados definitivamente.', 'success');
   }
 };

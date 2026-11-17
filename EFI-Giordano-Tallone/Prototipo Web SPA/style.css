@@ -216,6 +216,10 @@ html.dark footer {
   border-color: #1E293B !important;
 }
 
+<<<<<<< HEAD
+=======
+/* Fondos blancos, grises claros y tarjetas */
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
 html.dark .bg-white,
 html.dark .spa-view .bg-white,
 html.dark .bg-slate-50,
@@ -227,6 +231,7 @@ html.dark .bg-gray-100 {
   border-color: #334155 !important;
 }
 
+<<<<<<< HEAD
 html.dark .bg-orange-50,
 html.dark .bg-amber-50,
 html.dark [class*="from-orange-"],
@@ -259,6 +264,44 @@ html.dark .text-gray-800 {
   color: #F8FAFC !important;
 }
 
+=======
+/* Fondos con colores pastel o degradados (Banner principal y tarjeta Perdidas) */
+html.dark .bg-orange-50,
+html.dark .bg-amber-50,
+html.dark .bg-red-50,
+html.dark [class*="from-orange-"],
+html.dark [class*="from-amber-"],
+html.dark [class*="from-red-"],
+html.dark .quick-access-lost {
+  background-image: none !important;
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+/* Hover de la tarjeta de Mascotas Perdidas en modo oscuro */
+html.dark .quick-access-lost:hover {
+  background-color: #283548 !important;
+  border-color: #EF4444 !important;
+}
+
+/* Inputs y selectores (como el selector de barrio "Centro" en el header) */
+html.dark select,
+html.dark input {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+
+/* Textos */
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-slate-700,
+html.dark .text-gray-900,
+html.dark .text-gray-800 {
+  color: #F8FAFC !important;
+}
+
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
 html.dark .text-slate-500,
 html.dark .text-slate-600,
 html.dark .text-gray-500,
@@ -275,20 +318,50 @@ html.dark [class*="bg-red-50"] {
   box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.25) !important;
 }
 
+<<<<<<< HEAD
+=======
+/* Efecto al pasar el mouse en Modo Oscuro */
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
 html.dark .quick-access-lost:hover {
   background: linear-gradient(135deg, #4C1D2A 0%, #263349 100%) !important;
   border-color: #F87171 !important;
   box-shadow: 0 10px 25px -4px rgba(239, 68, 68, 0.4) !important;
 }
 
+<<<<<<< HEAD
+=======
+/* Asegurar que el subtítulo "Ver alertas activas" se lea nítido */
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
 html.dark .quick-access-lost .text-red-600,
 html.dark .quick-access-lost .text-rose-600 {
   color: #FCA5A5 !important;
 }
 
+<<<<<<< HEAD
 /* ======================================================== */
 /* RESPONSIVE MÓVIL                                         */
 /* ======================================================== */
+=======
+/* Bloquear cualquier desbordamiento horizontal en la página */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+/* Cajas pastel con opacidad (ej. bg-amber-50/50, bg-orange-50/40) en vistas de detalle e historial */
+html.dark [class*="bg-amber-50"],
+html.dark [class*="bg-orange-50"],
+html.dark [class*="bg-yellow-50"],
+html.dark [class*="bg-stone-50"],
+html.dark [class*="bg-neutral-50"],
+html.dark [class*="bg-zinc-50"] {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
 @media (max-width: 640px) {
   #appTopBar,
   main,
@@ -297,6 +370,10 @@ html.dark .quick-access-lost .text-rose-600 {
     overflow-x: hidden !important;
   }
 
+<<<<<<< HEAD
+=======
+  /* Ajustar barra superior para que no empuje hacia afuera */
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   #appTopBar > div {
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
@@ -316,6 +393,10 @@ html.dark .quick-access-lost .text-rose-600 {
     min-width: auto !important;
   }
 
+<<<<<<< HEAD
+=======
+  /* Ocultar subtítulo del logo, nombre al lado del avatar y botón "+ Publicar" del header */
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   #appTopBar p,
   #appTopBar button:has(.fa-plus),
   #appTopBar [id*="publish"],
@@ -325,6 +406,10 @@ html.dark .quick-access-lost .text-rose-600 {
     display: none !important;
   }
 
+<<<<<<< HEAD
+=======
+  /* Evitar que la fila de filtros (Todos, Perdidos, Encontrados...) ensanche la página */
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   .pill-lost-alert {
     flex-shrink: 0;
   }
@@ -335,6 +420,10 @@ html.dark .quick-access-lost .text-rose-600 {
     padding-bottom: 0.25rem;
   }
 
+<<<<<<< HEAD
+=======
+  /* Ajustar grillas de 3 columnas (estadísticas de perfil) */
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
   .grid-cols-3 {
     gap: 0.4rem !important;
   }
@@ -345,6 +434,7 @@ html.dark .quick-access-lost .text-rose-600 {
   .grid-cols-3 span {
     font-size: 0.7rem !important;
   }
+<<<<<<< HEAD
 }
 
 /* ========================================================
@@ -487,4 +577,6 @@ html.dark .quick-access-lost .text-rose-600 {
 
 .welcome-btn-glow:hover {
   transform: translateY(-3px) scale(1.02);
+=======
+>>>>>>> 2befadd50bf6d255fa566cfb2fdd13910fe4e2ac
 }
